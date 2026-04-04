@@ -62,8 +62,8 @@ export async function POST(req: NextRequest) {
         username: "NyX Bot",
         avatar_url: "https://i.imgur.com/placeholder.png",
         content: username
-          ? `@nyx-bot **Scan dispatched** for \`${url}\` with authentication credentials.`
-          : `@nyx-bot **Scan dispatched** for \`${url}\``,
+          ? `<@1277872691180998656> @nyx-bot **Scan dispatched** for \`${url}\` with authentication credentials.`
+          : `<@1277872691180998656> @nyx-bot **Scan dispatched** for \`${url}\``,
         embeds: [embed],
       }),
     });
