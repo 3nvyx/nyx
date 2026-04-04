@@ -183,6 +183,18 @@ export default function LandingScreen({ onStartScan, isExiting = false }: Landin
               gap: 10,
             }}
           >
+            <span
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.65rem",
+                color: "var(--amber)",
+                opacity: 0.8,
+                marginBottom: 4,
+                fontStyle: "italic",
+              }}
+            >
+              *Please enter credential information if required for the website being scanned*
+            </span>
             <input
               type="text"
               placeholder="Username"
