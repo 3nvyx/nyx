@@ -1,27 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import type { OpenClawMetrics, RunStatus } from "@/lib/openclaw/types";
 
-export default function ImpactMeter() {
-  const [progress, setProgress] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(true);
-  const targetPercent = 72;
-
-  useEffect(() => {
-    let current = 0;
-    const interval = setInterval(() => {
-      const step = Math.floor(Math.random() * 9) + 3;
-      current = Math.min(current + step, targetPercent);
-      setProgress(current);
-
-      if (current >= targetPercent) {
-        setIsAnimating(false);
-        clearInterval(interval);
-      }
-    }, 600 + Math.random() * 1000);
-
-    return () => clearInterval(interval);
-  }, []);
+export default function ImpactMeter({
+  metrics,
+  status,
+}: {
+  metrics: OpenClawMetrics;
+  status: RunStatus;
+}) {
+  const progress = metrics.riskPercent;
 
   // Hardcoded hex colors — no CSS variables
   const getBarColor = (pct: number): string => {
@@ -32,7 +20,7 @@ export default function ImpactMeter() {
   };
 
   const getLabel = (pct: number) => {
-    if (isAnimating) return "ANALYZING...";
+    if (status === "queued" || status === "running") return "ANALYZING...";
     if (pct < 30) return "LOW RISK";
     if (pct < 60) return "MEDIUM RISK";
     if (pct < 80) return "HIGH RISK";
@@ -72,7 +60,7 @@ export default function ImpactMeter() {
             textTransform: "uppercase",
           }}
         >
-          System Impact Correlation:{" "}
+          System Risk Correlation:{" "}
           <span style={{ color: barColor }}>{getLabel(progress)}</span>
         </span>
         <span
@@ -94,9 +82,9 @@ export default function ImpactMeter() {
             fontFamily: "var(--font-mono)",
             fontSize: "1.1rem",
             fontWeight: 900,
-            color: "#ff2d2d",
-            textAlign: "center",
-            letterSpacing: "0.3em",
+          color: "#ff2d2d",
+          textAlign: "center",
+          letterSpacing: "0.3em",
             textTransform: "uppercase",
             marginBottom: 8,
             textShadow: "0 0 12px rgba(255,45,45,0.6)",
@@ -149,9 +137,9 @@ export default function ImpactMeter() {
           letterSpacing: "0.12em",
         }}
       >
-        <span>STATUS: ACTIVE_MONITORING</span>
-        <span>THREAT_ESTIMATION: STABLE</span>
-        <span>v2.4.92-BETA</span>
+        <span>STATUS: {status.toUpperCase()}</span>
+        <span>FINDINGS: {metrics.totalFindings}</span>
+        <span>PROGRESS: {metrics.progress}%</span>
       </div>
     </div>
   );

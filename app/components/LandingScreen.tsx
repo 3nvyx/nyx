@@ -4,11 +4,18 @@ import { useState, useEffect } from "react";
 import NyxRobot3D from "./NyxRobot3D";
 
 interface LandingScreenProps {
-  onStartScan: (url: string) => void;
+  onStartScan: (url: string) => Promise<void> | void;
   isExiting?: boolean;
+  isStarting?: boolean;
+  error?: string | null;
 }
 
-export default function LandingScreen({ onStartScan, isExiting = false }: LandingScreenProps) {
+export default function LandingScreen({
+  onStartScan,
+  isExiting = false,
+  isStarting = false,
+  error = null,
+}: LandingScreenProps) {
   const [url, setUrl] = useState("https://target-alpha.com");
   const [typedText, setTypedText] = useState("");
   const fullText = "Hey, I'm NyX — your autonomous cybersecurity bug and vulnerability hunter. Let's get to work!";
@@ -119,6 +126,7 @@ export default function LandingScreen({ onStartScan, isExiting = false }: Landin
 
         <button
           onClick={() => onStartScan(url)}
+          disabled={isStarting}
           style={{
             background: "linear-gradient(135deg, #00802b, #004d14)",
             border: "1px solid var(--green)",
@@ -133,10 +141,27 @@ export default function LandingScreen({ onStartScan, isExiting = false }: Landin
             cursor: "pointer",
             textTransform: "uppercase",
             transition: "all 0.2s ease",
+            opacity: isStarting ? 0.7 : 1,
           }}
         >
-          ▶ START SECURITY SCAN
+          {isStarting ? "… QUEUING OPENCLAW RUN" : "▶ START SECURITY SCAN"}
         </button>
+
+        {error ? (
+          <div
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.7rem",
+              color: "var(--red)",
+              border: "1px solid rgba(255, 45, 45, 0.3)",
+              background: "rgba(60, 0, 0, 0.35)",
+              borderRadius: 8,
+              padding: "10px 12px",
+            }}
+          >
+            {error}
+          </div>
+        ) : null}
       </div>
 
       {/* Decor/Scanlines */}
