@@ -10,6 +10,11 @@ interface LandingScreenProps {
 
 export default function LandingScreen({ onStartScan, isExiting = false }: LandingScreenProps) {
   const [url, setUrl] = useState("https://target-alpha.com");
+  const [showCredentials, setShowCredentials] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [isDispatching, setIsDispatching] = useState(false);
+  const [dispatchError, setDispatchError] = useState<string | null>(null);
   const [typedText, setTypedText] = useState("");
   const fullText = "Hey, I'm NyX — your autonomous cybersecurity bug and vulnerability hunter. Let's get to work!";
 
@@ -26,6 +31,34 @@ export default function LandingScreen({ onStartScan, isExiting = false }: Landin
     }, 40);
     return () => clearInterval(interval);
   }, [isExiting]);
+
+  const handleStartScan = async () => {
+    setIsDispatching(true);
+    setDispatchError(null);
+
+    try {
+      const res = await fetch("/api/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          url,
+          username: username || undefined,
+          password: password || undefined,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Dispatch failed");
+      }
+
+      onStartScan(url);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to dispatch scan";
+      setDispatchError(message);
+      setIsDispatching(false);
+    }
+  };
 
   return (
     <div
@@ -117,10 +150,127 @@ export default function LandingScreen({ onStartScan, isExiting = false }: Landin
           />
         </div>
 
-        <button
-          onClick={() => onStartScan(url)}
+        {/* Optional Credentials Toggle */}
+        <div
+          onClick={() => setShowCredentials(!showCredentials)}
           style={{
-            background: "linear-gradient(135deg, #00802b, #004d14)",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            cursor: "pointer",
+            fontFamily: "var(--font-mono)",
+            fontSize: "0.7rem",
+            color: showCredentials ? "var(--amber)" : "var(--text-muted)",
+            letterSpacing: "0.1em",
+            userSelect: "none",
+            transition: "color 0.2s ease",
+          }}
+        >
+          <span style={{ fontSize: "0.8rem" }}>{showCredentials ? "🔓" : "🔒"}</span>
+          AUTHENTICATION (OPTIONAL)
+          <span style={{ marginLeft: "auto", fontSize: "0.6rem", opacity: 0.5 }}>
+            {showCredentials ? "▲" : "▼"}
+          </span>
+        </div>
+
+        {/* Credentials Fields */}
+        {showCredentials && (
+          <div
+            className="animate-fade-in-up"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 10,
+            }}
+          >
+            <input
+              type="text"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              style={{
+                width: "100%",
+                background: "var(--bg)",
+                border: "1px solid var(--border)",
+                borderRadius: 8,
+                padding: "10px 14px",
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.8rem",
+                color: "var(--text-primary)",
+                outline: "none",
+                transition: "all 0.3s ease",
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = "var(--amber)";
+                e.target.style.boxShadow = "0 0 10px var(--amber-glow)";
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = "var(--border)";
+                e.target.style.boxShadow = "none";
+              }}
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{
+                width: "100%",
+                background: "var(--bg)",
+                border: "1px solid var(--border)",
+                borderRadius: 8,
+                padding: "10px 14px",
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.8rem",
+                color: "var(--text-primary)",
+                outline: "none",
+                transition: "all 0.3s ease",
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = "var(--amber)";
+                e.target.style.boxShadow = "0 0 10px var(--amber-glow)";
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = "var(--border)";
+                e.target.style.boxShadow = "none";
+              }}
+            />
+            <span
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.55rem",
+                color: "var(--text-muted)",
+                opacity: 0.5,
+                letterSpacing: "0.05em",
+              }}
+            >
+              Credentials are used for authenticated scanning only and are not stored.
+            </span>
+          </div>
+        )}
+
+        {dispatchError && (
+          <div
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.65rem",
+              color: "#ff2d2d",
+              textAlign: "center",
+              padding: "6px 0",
+              letterSpacing: "0.05em",
+            }}
+          >
+            ⚠ {dispatchError}
+          </div>
+        )}
+
+        <button
+          onClick={handleStartScan}
+          disabled={isDispatching}
+          style={{
+            background: isDispatching
+              ? "linear-gradient(135deg, #333, #222)"
+              : "linear-gradient(135deg, #00802b, #004d14)",
             border: "1px solid var(--green)",
             boxShadow: "0 0 15px var(--green-glow)",
             borderRadius: 8,
@@ -130,12 +280,13 @@ export default function LandingScreen({ onStartScan, isExiting = false }: Landin
             fontWeight: 800,
             letterSpacing: "0.15em",
             color: "var(--green)",
-            cursor: "pointer",
+            cursor: isDispatching ? "wait" : "pointer",
             textTransform: "uppercase",
             transition: "all 0.2s ease",
+            opacity: isDispatching ? 0.6 : 1,
           }}
         >
-          ▶ START SECURITY SCAN
+          {isDispatching ? "⏳ DISPATCHING..." : "▶ START SECURITY SCAN"}
         </button>
       </div>
 
