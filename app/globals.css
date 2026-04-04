@@ -1,0 +1,243 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #0d0d0d;
+  --bg-surface: #141414;
+  --bg-elevated: #1a1a1a;
+  --bg-card: #111111;
+  --green: #00ff41;
+  --green-dim: #00cc33;
+  --green-glow: rgba(0, 255, 65, 0.3);
+  --amber: #ffaa00;
+  --amber-dim: #cc8800;
+  --amber-glow: rgba(255, 170, 0, 0.3);
+  --red: #ff2d2d;
+  --red-dim: #cc2424;
+  --red-glow: rgba(255, 45, 45, 0.3);
+  --text-primary: #e0e0e0;
+  --text-secondary: #888888;
+  --text-muted: #555555;
+  --border: #222222;
+  --border-bright: #333333;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  --font-sans: 'Inter', -apple-system, sans-serif;
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--text-primary);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+* {
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-bright) transparent;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ---- Glow Utilities ---- */
+.glow-green {
+  text-shadow: 0 0 6px var(--green-glow), 0 0 20px var(--green-glow);
+}
+.glow-amber {
+  text-shadow: 0 0 6px var(--amber-glow), 0 0 20px var(--amber-glow);
+}
+.glow-red {
+  text-shadow: 0 0 6px var(--red-glow), 0 0 20px var(--red-glow);
+}
+.box-glow-green {
+  box-shadow: 0 0 8px var(--green-glow), inset 0 0 8px rgba(0,255,65,0.05);
+}
+.box-glow-amber {
+  box-shadow: 0 0 8px var(--amber-glow), inset 0 0 8px rgba(255,170,0,0.05);
+}
+.box-glow-red {
+  box-shadow: 0 0 8px var(--red-glow), inset 0 0 8px rgba(255,45,45,0.05);
+}
+
+/* ---- Scanline Overlay ---- */
+.scanline::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 255, 65, 0.015) 2px,
+    rgba(0, 255, 65, 0.015) 4px
+  );
+  z-index: 1;
+}
+
+/* ---- Keyframes ---- */
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+@keyframes pulse-green {
+  0%, 100% { box-shadow: 0 0 8px var(--green-glow); }
+  50% { box-shadow: 0 0 24px var(--green-glow), 0 0 48px rgba(0,255,65,0.15); }
+}
+@keyframes pulse-red {
+  0%, 100% { box-shadow: 0 0 8px var(--red-glow); }
+  50% { box-shadow: 0 0 24px var(--red-glow), 0 0 48px rgba(255,45,45,0.15); }
+}
+@keyframes pulse-opacity {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+@keyframes pulse-ring {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.15); opacity: 0.2; }
+}
+@keyframes scan-line {
+  0% { top: -2px; }
+  100% { top: 100%; }
+}
+@keyframes typewriter-reveal {
+  from { max-width: 0; }
+  to { max-width: 100%; }
+}
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes gauge-fill {
+  from { stroke-dashoffset: 283; }
+}
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.8; }
+  94% { opacity: 1; }
+  96% { opacity: 0.9; }
+  97% { opacity: 1; }
+}
+@keyframes h-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+
+/* ---- Utility Classes ---- */
+.animate-blink { animation: blink-cursor 1s step-end infinite; }
+.animate-pulse-green { animation: pulse-green 2s ease-in-out infinite; }
+.animate-pulse-red { animation: pulse-red 1.5s ease-in-out infinite; }
+.animate-pulse-ring { animation: pulse-ring 2s ease-in-out infinite; }
+.animate-fade-in-up { animation: fade-in-up 0.4s ease-out forwards; }
+.animate-flicker { animation: flicker 4s linear infinite; }
+
+/* ---- Section Panel ---- */
+.panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+.panel-header {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.panel-header .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green-glow);
+}
+
+/* ---- Severity Badges ---- */
+.severity-p1 { background: var(--red); color: #000; }
+.severity-p2 { background: var(--amber); color: #000; }
+.severity-p3 { background: var(--green); color: #000; }
+.severity-p4 { background: var(--text-muted); color: #fff; }
+
+/* ---- Phase Transitions ---- */
+.reveal-container {
+  display: grid;
+  grid-template-columns: 300px 1fr 300px;
+  grid-template-rows: 1fr auto;
+  gap: 8px;
+  height: 100vh;
+  width: 100vw;
+  background: var(--bg);
+  padding: 8px;
+  overflow: hidden;
+}
+
+/* Transitions & Animations */
+.tab-appear {
+  opacity: 0;
+  transform: translateY(100px);
+  animation: tabAppear 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes tabAppear {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fly-off-right {
+  animation: flyOffRight 1.5s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+}
+
+@keyframes flyOffRight {
+  0% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+    filter: brightness(1) blur(0);
+  }
+  25% {
+    /* Wind up / Pull back */
+    transform: translateX(-80px) scale(1.1) rotate(-5deg);
+    opacity: 1;
+    filter: brightness(1.2) blur(0);
+  }
+  45% {
+    /* Boost / Flash */
+    transform: translateX(0px) scale(1.2) rotate(5deg);
+    opacity: 1;
+    filter: brightness(3) blur(2px);
+  }
+  100% {
+    /* High velocity exit */
+    transform: translateX(200vw) scale(0.5) rotate(20deg);
+    opacity: 0;
+    filter: brightness(1) blur(20px);
+  }
+}
+
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.3s; }
+.stagger-3 { animation-delay: 0.5s; }
+.stagger-4 { animation-delay: 0.7s; }
+.stagger-5 { animation-delay: 1.0s; }
