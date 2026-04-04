@@ -13,6 +13,8 @@ export default function LandingScreen({ onStartScan, isExiting = false }: Landin
   const [showCredentials, setShowCredentials] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [isDispatching, setIsDispatching] = useState(false);
+  const [dispatchError, setDispatchError] = useState<string | null>(null);
   const [typedText, setTypedText] = useState("");
   const fullText = "Hey, I'm NyX — your autonomous cybersecurity bug and vulnerability hunter. Let's get to work!";
 
@@ -29,6 +31,34 @@ export default function LandingScreen({ onStartScan, isExiting = false }: Landin
     }, 40);
     return () => clearInterval(interval);
   }, [isExiting]);
+
+  const handleStartScan = async () => {
+    setIsDispatching(true);
+    setDispatchError(null);
+
+    try {
+      const res = await fetch("/api/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          url,
+          username: username || undefined,
+          password: password || undefined,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Dispatch failed");
+      }
+
+      onStartScan(url);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to dispatch scan";
+      setDispatchError(message);
+      setIsDispatching(false);
+    }
+  };
 
   return (
     <div
@@ -219,10 +249,28 @@ export default function LandingScreen({ onStartScan, isExiting = false }: Landin
           </div>
         )}
 
+        {dispatchError && (
+          <div
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.65rem",
+              color: "#ff2d2d",
+              textAlign: "center",
+              padding: "6px 0",
+              letterSpacing: "0.05em",
+            }}
+          >
+            ⚠ {dispatchError}
+          </div>
+        )}
+
         <button
-          onClick={() => onStartScan(url)}
+          onClick={handleStartScan}
+          disabled={isDispatching}
           style={{
-            background: "linear-gradient(135deg, #00802b, #004d14)",
+            background: isDispatching
+              ? "linear-gradient(135deg, #333, #222)"
+              : "linear-gradient(135deg, #00802b, #004d14)",
             border: "1px solid var(--green)",
             boxShadow: "0 0 15px var(--green-glow)",
             borderRadius: 8,
@@ -232,12 +280,13 @@ export default function LandingScreen({ onStartScan, isExiting = false }: Landin
             fontWeight: 800,
             letterSpacing: "0.15em",
             color: "var(--green)",
-            cursor: "pointer",
+            cursor: isDispatching ? "wait" : "pointer",
             textTransform: "uppercase",
             transition: "all 0.2s ease",
+            opacity: isDispatching ? 0.6 : 1,
           }}
         >
-          ▶ START SECURITY SCAN
+          {isDispatching ? "⏳ DISPATCHING..." : "▶ START SECURITY SCAN"}
         </button>
       </div>
 
