@@ -10,6 +10,9 @@ interface LandingScreenProps {
 
 export default function LandingScreen({ onStartScan, isExiting = false }: LandingScreenProps) {
   const [url, setUrl] = useState("https://target-alpha.com");
+  const [showCredentials, setShowCredentials] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [typedText, setTypedText] = useState("");
   const fullText = "Hey, I'm NyX — your autonomous cybersecurity bug and vulnerability hunter. Let's get to work!";
 
@@ -116,6 +119,105 @@ export default function LandingScreen({ onStartScan, isExiting = false }: Landin
             }}
           />
         </div>
+
+        {/* Optional Credentials Toggle */}
+        <div
+          onClick={() => setShowCredentials(!showCredentials)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            cursor: "pointer",
+            fontFamily: "var(--font-mono)",
+            fontSize: "0.7rem",
+            color: showCredentials ? "var(--amber)" : "var(--text-muted)",
+            letterSpacing: "0.1em",
+            userSelect: "none",
+            transition: "color 0.2s ease",
+          }}
+        >
+          <span style={{ fontSize: "0.8rem" }}>{showCredentials ? "🔓" : "🔒"}</span>
+          AUTHENTICATION (OPTIONAL)
+          <span style={{ marginLeft: "auto", fontSize: "0.6rem", opacity: 0.5 }}>
+            {showCredentials ? "▲" : "▼"}
+          </span>
+        </div>
+
+        {/* Credentials Fields */}
+        {showCredentials && (
+          <div
+            className="animate-fade-in-up"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 10,
+            }}
+          >
+            <input
+              type="text"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              style={{
+                width: "100%",
+                background: "var(--bg)",
+                border: "1px solid var(--border)",
+                borderRadius: 8,
+                padding: "10px 14px",
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.8rem",
+                color: "var(--text-primary)",
+                outline: "none",
+                transition: "all 0.3s ease",
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = "var(--amber)";
+                e.target.style.boxShadow = "0 0 10px var(--amber-glow)";
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = "var(--border)";
+                e.target.style.boxShadow = "none";
+              }}
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{
+                width: "100%",
+                background: "var(--bg)",
+                border: "1px solid var(--border)",
+                borderRadius: 8,
+                padding: "10px 14px",
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.8rem",
+                color: "var(--text-primary)",
+                outline: "none",
+                transition: "all 0.3s ease",
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = "var(--amber)";
+                e.target.style.boxShadow = "0 0 10px var(--amber-glow)";
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = "var(--border)";
+                e.target.style.boxShadow = "none";
+              }}
+            />
+            <span
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.55rem",
+                color: "var(--text-muted)",
+                opacity: 0.5,
+                letterSpacing: "0.05em",
+              }}
+            >
+              Credentials are used for authenticated scanning only and are not stored.
+            </span>
+          </div>
+        )}
 
         <button
           onClick={() => onStartScan(url)}
