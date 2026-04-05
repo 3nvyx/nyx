@@ -1,4 +1,5 @@
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function ReportModal({
   report,
@@ -38,8 +39,8 @@ export default function ReportModal({
           boxShadow: '0 0 40px rgba(0, 255, 65, 0.1)',
         }}
       >
-        <div 
-          className="panel-header" 
+        <div
+          className="panel-header"
           style={{ justifyContent: 'space-between', display: 'flex', alignItems: 'center' }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -47,7 +48,7 @@ export default function ReportModal({
             FINAL SECURITY REPORT
           </div>
           {report && (
-            <button 
+            <button
               onClick={onClose}
               style={{
                 background: 'transparent',
@@ -62,12 +63,12 @@ export default function ReportModal({
           )}
         </div>
 
-        <div 
-          style={{ 
-            padding: '24px', 
-            overflowY: 'auto', 
-            flex: 1, 
-            color: 'var(--text-primary)', 
+        <div
+          style={{
+            padding: '24px',
+            overflowY: 'auto',
+            flex: 1,
+            color: 'var(--text-primary)',
             fontFamily: 'var(--font-sans)',
             lineHeight: 1.6
           }}
@@ -78,12 +79,13 @@ export default function ReportModal({
                 Synthesizing intelligence...
               </div>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontFamily: 'var(--font-mono)' }}>
-                Consulting Grok to assemble final penetration testing report
+                Assemble final penetration testing report
               </p>
             </div>
           ) : (
             <div style={{ fontSize: "0.9rem" }}>
-               <style dangerouslySetInnerHTML={{__html: `
+              <style dangerouslySetInnerHTML={{
+                __html: `
                  div h1, div h2, div h3 { color: var(--green); margin-top: 1.5em; margin-bottom: 0.5em; }
                  div h1 { font-size: 1.8em; }
                  div h2 { font-size: 1.4em; }
@@ -94,8 +96,11 @@ export default function ReportModal({
                  div code { background: rgba(0,255,65,0.1); padding: 2px 4px; border-radius: 4px; color: var(--green); font-family: var(--font-mono); }
                  div pre { background: var(--bg); padding: 12px; border-radius: 8px; overflow-x: auto; margin-bottom: 1em; border: 1px solid var(--border); }
                  div pre code { background: transparent; padding: 0; color: inherit; }
+                 div table { width: 100%; border-collapse: collapse; margin-bottom: 1em; }
+                 div th, div td { border: 1px solid var(--border); padding: 8px; text-align: left; }
+                 div th { background-color: rgba(0,255,65,0.1); color: var(--green); }
                `}} />
-               <ReactMarkdown>{report || ""}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{report || ""}</ReactMarkdown>
             </div>
           )}
         </div>

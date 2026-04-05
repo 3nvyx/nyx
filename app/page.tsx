@@ -75,7 +75,7 @@ export default function Home() {
     if (phase !== "dashboard") return;
 
     let count = 0;
-    const maxPings = 3;
+    const maxPings = 4;
 
     const pingOpenclaw = async () => {
       count++;
@@ -215,10 +215,10 @@ export default function Home() {
         <ImpactMeter progress={metrics.progress} status={status} totalFindings={metrics.totalFindings} />
       </div>
 
-      <ReportModal 
-        report={finalReport} 
-        isGenerating={isReportGenerating} 
-        onClose={() => setFinalReport(null)} 
+      <ReportModal
+        report={finalReport}
+        isGenerating={isReportGenerating}
+        onClose={() => setFinalReport(null)}
       />
     </div>
   );
