@@ -2,8 +2,15 @@
 
 import type { OpenClawMetrics, RunStatus } from "@/lib/openclaw/types";
 
-export default function ImpactMeter({ progress }: { progress: number }) {
-  // Hardcoded hex colors — no CSS variables
+export default function ImpactMeter({ 
+  progress, 
+  status = "idle", 
+  totalFindings = 0 
+}: { 
+  progress: number;
+  status?: string;
+  totalFindings?: number;
+}) {
   const getBarColor = (pct: number): string => {
     if (pct < 25) return "#00ff41";       // bright green
     if (pct < 50) return "#ffaa00";       // matches P2 Evidence Locker
@@ -131,8 +138,8 @@ export default function ImpactMeter({ progress }: { progress: number }) {
         }}
       >
         <span>STATUS: {status.toUpperCase()}</span>
-        <span>FINDINGS: {metrics.totalFindings}</span>
-        <span>PROGRESS: {metrics.progress}%</span>
+        <span>FINDINGS: {totalFindings}</span>
+        <span>PROGRESS: {progress}%</span>
       </div>
     </div>
   );

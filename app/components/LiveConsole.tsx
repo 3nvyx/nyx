@@ -16,14 +16,14 @@ const LINE_COLORS: Record<string, string> = {
 };
 
 export interface LiveConsoleHandle {
-  scrollToLine: (lineId: string) => void;
+  scrollToLine: (lineId: number) => void;
 }
 
 const LiveConsole = forwardRef<LiveConsoleHandle, { lines: ConsoleLine[] }>(function LiveConsole({ lines }, ref) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useImperativeHandle(ref, () => ({
-    scrollToLine(lineId: string) {
+    scrollToLine(lineId: number) {
       const el = document.getElementById(`console-line-${lineId}`);
       if (el) {
         el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -72,8 +72,8 @@ const LiveConsole = forwardRef<LiveConsoleHandle, { lines: ConsoleLine[] }>(func
             key={line.id}
             id={`console-line-${line.id}`}
             style={{
-              color: LINE_COLORS[line.level] || "var(--text-primary)",
-              fontWeight: line.level === "critical" ? 700 : 400,
+              color: LINE_COLORS[line.type] || "var(--text-primary)",
+              fontWeight: line.type === "critical" ? 700 : 400,
               minHeight: line.text ? "auto" : 12,
               paddingLeft: 8,
               borderLeft: "3px solid transparent",
@@ -81,7 +81,7 @@ const LiveConsole = forwardRef<LiveConsoleHandle, { lines: ConsoleLine[] }>(func
             }}
           >
             <span style={{ color: "var(--text-muted)", marginRight: 12, userSelect: "none", opacity: 0.4 }}>
-              {String(line.seq).padStart(2, "0")}
+              {String(line.id).padStart(2, "0")}
             </span>
             {line.text}
           </div>
@@ -93,3 +93,5 @@ const LiveConsole = forwardRef<LiveConsoleHandle, { lines: ConsoleLine[] }>(func
     </div>
   );
 });
+
+export default LiveConsole;

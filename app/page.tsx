@@ -60,7 +60,7 @@ export default function Home() {
   };
 
   const handleSelectBug = (bugId: string, evidenceLine: number) => {
-    setSelectedBugId(bugId);
+    setSelectedFindingId(bugId);
     consoleRef.current?.scrollToLine(evidenceLine);
   };
 
@@ -75,15 +75,13 @@ export default function Home() {
     );
   }
 
-  const target = snapshot?.target ?? "Awaiting bridge target";
-  const status = snapshot?.status ?? "idle";
-  const logs = snapshot?.logs ?? [];
-  const thoughts = snapshot?.thoughts ?? [];
-  const findings = snapshot?.findings ?? [];
-  const metrics = snapshot?.metrics ?? {
-    progress: 0,
-    riskPercent: 0,
-    totalFindings: 0,
+  const target = "Awaiting bridge target";
+  const status = phase === "dashboard" ? "running" : "idle";
+  const logs: any[] = [];
+  const metrics = {
+    progress: impact,
+    riskPercent: impact, 
+    totalFindings: findings.length,
     countsBySeverity: { P1: 0, P2: 0, P3: 0, P4: 0 },
   };
 
@@ -102,7 +100,7 @@ export default function Home() {
         }}
       >
         <div className="panel" style={{ flexShrink: 0 }}>
-          <NyxAvatar working={status === "running" || status === "queued"} />
+          <NyxAvatar working={status === "running"} />
         </div>
         <ThoughtStream messages={thoughts} />
       </div>
@@ -120,7 +118,7 @@ export default function Home() {
         className="tab-appear stagger-3" 
         style={{ gridRow: "1 / 2", gridColumn: "3 / 4", minHeight: 0 }}
       >
-        <EvidenceLocker bugs={findings} selectedBugId={selectedBugId} onSelectBug={handleSelectBug} />
+        <EvidenceLocker bugs={findings} selectedBugId={selectedFindingId} onSelectBug={handleSelectBug} />
       </div>
 
       {/* Bottom Bar — Impact Meter */}
@@ -128,7 +126,7 @@ export default function Home() {
         className="tab-appear stagger-4"
         style={{ gridRow: "2 / 3", gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 8 }}
       >
-        <ImpactMeter progress={impact} />
+        <ImpactMeter progress={metrics.progress} status={status} totalFindings={metrics.totalFindings} />
       </div>
     </div>
   );
