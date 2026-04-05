@@ -74,7 +74,7 @@ const LiveConsole = forwardRef<LiveConsoleHandle, { lines: ConsoleLine[] }>(func
             style={{
               color: LINE_COLORS[line.type] || "var(--text-primary)",
               fontWeight: line.type === "critical" ? 700 : 400,
-              minHeight: line.type === "blank" ? 12 : "auto",
+              minHeight: line.text ? "auto" : 12,
               paddingLeft: 8,
               borderLeft: "3px solid transparent",
               transition: "all 0.3s ease",

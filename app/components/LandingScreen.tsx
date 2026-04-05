@@ -4,11 +4,18 @@ import { useState, useEffect } from "react";
 import NyxRobot3D from "./NyxRobot3D";
 
 interface LandingScreenProps {
-  onStartScan: (url: string) => void;
+  onStartScan: (url: string) => Promise<void> | void;
   isExiting?: boolean;
+  isStarting?: boolean;
+  error?: string | null;
 }
 
-export default function LandingScreen({ onStartScan, isExiting = false }: LandingScreenProps) {
+export default function LandingScreen({
+  onStartScan,
+  isExiting = false,
+  isStarting = false,
+  error = null,
+}: LandingScreenProps) {
   const [url, setUrl] = useState("https://target-alpha.com");
   const [showCredentials, setShowCredentials] = useState(false);
   const [username, setUsername] = useState("");
@@ -300,6 +307,22 @@ export default function LandingScreen({ onStartScan, isExiting = false }: Landin
         >
           {isDispatching ? "⏳ DISPATCHING..." : "▶ START SECURITY SCAN"}
         </button>
+
+        {error ? (
+          <div
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.7rem",
+              color: "var(--red)",
+              border: "1px solid rgba(255, 45, 45, 0.3)",
+              background: "rgba(60, 0, 0, 0.35)",
+              borderRadius: 8,
+              padding: "10px 12px",
+            }}
+          >
+            {error}
+          </div>
+        ) : null}
       </div>
 
       {/* Decor/Scanlines */}

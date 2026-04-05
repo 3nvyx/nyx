@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import ActionBar from "./components/ActionBar";
 import EvidenceLocker from "./components/EvidenceLocker";
 import NyxAvatar from "./components/NyxAvatar";
 import ThoughtStream from "./components/ThoughtStream";
@@ -15,8 +16,11 @@ type Phase = "landing" | "transitioning" | "dashboard";
 
 export default function Home() {
   const [phase, setPhase] = useState<Phase>("landing");
-  const [selectedBugId, setSelectedBugId] = useState<string | null>(null);
-  const [targetUrl, setTargetUrl] = useState("");
+  const [runId, setRunId] = useState<string | null>(null);
+  const [selectedFindingId, setSelectedFindingId] = useState<string | null>(null);
+  const [isStarting, setIsStarting] = useState(false);
+  const [startError, setStartError] = useState<string | null>(null);
+  const [commandError, setCommandError] = useState<string | null>(null);
   const consoleRef = useRef<LiveConsoleHandle>(null);
   
   const { thoughts, consoleLines, findings, impact, addEvent, clearEvents } = useNyxEvents();
@@ -34,13 +38,30 @@ export default function Home() {
   };
 
   const handleSelectBug = (bugId: string, evidenceLine: number) => {
-    setSelectedBugId(bugId);
+    setSelectedFindingId(bugId);
     consoleRef.current?.scrollToLine(evidenceLine);
   };
 
   if (phase === "landing" || phase === "transitioning") {
-    return <LandingScreen onStartScan={handleStartScan} isExiting={phase === "transitioning"} />;
+    return (
+      <LandingScreen
+        onStartScan={handleStartScan}
+        isExiting={phase === "transitioning"}
+        isStarting={isStarting}
+        error={startError}
+      />
+    );
   }
+
+  const target = "Awaiting bridge target";
+  const status = phase === "dashboard" ? "running" : "idle";
+  const logs: any[] = [];
+  const metrics = {
+    progress: impact,
+    riskPercent: impact, 
+    totalFindings: findings.length,
+    countsBySeverity: { P1: 0, P2: 0, P3: 0, P4: 0 },
+  };
 
   return (
     <div className="reveal-container">
@@ -57,7 +78,7 @@ export default function Home() {
         }}
       >
         <div className="panel" style={{ flexShrink: 0 }}>
-          <NyxAvatar working={true} />
+          <NyxAvatar working={status === "running"} />
         </div>
         <ThoughtStream messages={thoughts} />
       </div>
@@ -82,23 +103,15 @@ export default function Home() {
           minHeight: 0 
         }}
       >
-        <AttackTree />
-        <EvidenceLocker bugs={findings} selectedBugId={selectedBugId} onSelectBug={handleSelectBug} />
+        <EvidenceLocker bugs={findings} selectedBugId={selectedFindingId} onSelectBug={handleSelectBug} />
       </div>
 
       {/* Bottom Bar — Action + Impact */}
       <div 
         className="tab-appear stagger-4"
-        style={{ 
-          gridRow: "2 / 3", 
-          gridColumn: "1 / -1",
-          display: "flex",
-          flexDirection: "column",
-          gap: 8
-        }}
+        style={{ gridRow: "2 / 3", gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 8 }}
       >
-        <ActionBar currentUrl={targetUrl} />
-        <ImpactMeter progress={impact} />
+        <ImpactMeter progress={metrics.progress} status={status} totalFindings={metrics.totalFindings} />
       </div>
     </div>
   );

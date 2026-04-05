@@ -1,0 +1,9 @@
+﻿app/components/ImpactMeter.tsx(134,26): error TS2304: Cannot find name 'metrics'.
+app/components/ImpactMeter.tsx(135,26): error TS2304: Cannot find name 'metrics'.
+app/components/LiveConsole.tsx(75,39): error TS2339: Property 'level' does not exist on type 'ConsoleLine'.
+app/components/LiveConsole.tsx(76,32): error TS2339: Property 'level' does not exist on type 'ConsoleLine'.
+app/components/LiveConsole.tsx(84,28): error TS2339: Property 'seq' does not exist on type 'ConsoleLine'.
+app/page.tsx(8,8): error TS1192: Module '"C:/Users/envn0/ENVN Codespace/nyx/app/components/LiveConsole"' has no default export.
+app/page.tsx(63,5): error TS2304: Cannot find name 'setSelectedBugId'.
+app/page.tsx(64,38): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+app/page.tsx(121,56): error TS2304: Cannot find name 'selectedBugId'.

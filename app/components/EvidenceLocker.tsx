@@ -88,7 +88,7 @@ export default function EvidenceLocker({
                 color: "var(--text-muted)",
               }}
             >
-              {bug.timestamp}
+              {new Date(bug.timestamp).toLocaleTimeString()}
             </span>
           </button>
         ))}
