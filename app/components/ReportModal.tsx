@@ -4,13 +4,15 @@ import remarkGfm from 'remark-gfm';
 export default function ReportModal({
   report,
   onClose,
-  isGenerating
+  isGenerating,
+  isOpen
 }: {
   report: string | null;
   onClose: () => void;
   isGenerating: boolean;
+  isOpen: boolean;
 }) {
-  if (!report && !isGenerating) return null;
+  if (!isOpen && !isGenerating) return null;
 
   return (
     <div

@@ -25,6 +25,7 @@ export default function Home() {
   const [targetUrl, setTargetUrl] = useState<string>("Awaiting bridge target");
   const [isReportGenerating, setIsReportGenerating] = useState(false);
   const [finalReport, setFinalReport] = useState<string | null>(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const consoleRef = useRef<LiveConsoleHandle>(null);
 
   const { thoughts, consoleLines, findings, impact, addEvent, clearEvents } = useNyxEvents();
@@ -122,13 +123,16 @@ export default function Home() {
           if (res.ok) {
             const data = await res.json();
             setFinalReport(data.report);
+            setIsReportModalOpen(true);
           } else {
             console.error("Failed to generate report");
             setFinalReport("## Error\nCould not retrieve remote report from API.");
+            setIsReportModalOpen(true);
           }
         } catch (err) {
           console.error(err);
           setFinalReport("## Error\nException: Could not reach report endpoint.");
+          setIsReportModalOpen(true);
         } finally {
           setIsReportGenerating(false);
         }
@@ -205,6 +209,26 @@ export default function Home() {
         <div style={{ flex: 1, minHeight: 0 }}>
           <OpenclawMessage />
         </div>
+        {finalReport && (
+          <button
+            onClick={() => setIsReportModalOpen(true)}
+            style={{
+              padding: "10px",
+              background: "var(--bg-card)",
+              border: "1px solid var(--border-bright)",
+              color: "var(--green)",
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.75rem",
+              fontWeight: "bold",
+              borderRadius: "4px",
+              cursor: "pointer",
+              boxShadow: "0 0 6px rgba(0,255,65,0.1)",
+              textTransform: "uppercase"
+            }}
+          >
+            View Security Report
+          </button>
+        )}
       </div>
 
       {/* Bottom Bar — Action + Impact */}
@@ -216,9 +240,10 @@ export default function Home() {
       </div>
 
       <ReportModal
+        isOpen={isReportModalOpen}
         report={finalReport}
         isGenerating={isReportGenerating}
-        onClose={() => setFinalReport(null)}
+        onClose={() => setIsReportModalOpen(false)}
       />
     </div>
   );
