@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import type { OpenClawMetrics, RunStatus } from "@/lib/openclaw/types";
 
 export default function ImpactMeter({ progress }: { progress: number }) {
   // Hardcoded hex colors — no CSS variables
@@ -53,7 +53,7 @@ export default function ImpactMeter({ progress }: { progress: number }) {
             textTransform: "uppercase",
           }}
         >
-          System Impact Correlation:{" "}
+          System Risk Correlation:{" "}
           <span style={{ color: barColor }}>{getLabel(progress)}</span>
         </span>
         <span
@@ -75,9 +75,9 @@ export default function ImpactMeter({ progress }: { progress: number }) {
             fontFamily: "var(--font-mono)",
             fontSize: "1.1rem",
             fontWeight: 900,
-            color: "#ff2d2d",
-            textAlign: "center",
-            letterSpacing: "0.3em",
+          color: "#ff2d2d",
+          textAlign: "center",
+          letterSpacing: "0.3em",
             textTransform: "uppercase",
             marginBottom: 8,
             textShadow: "0 0 12px rgba(255,45,45,0.6)",
@@ -130,9 +130,9 @@ export default function ImpactMeter({ progress }: { progress: number }) {
           letterSpacing: "0.12em",
         }}
       >
-        <span>STATUS: ACTIVE_MONITORING</span>
-        <span>THREAT_ESTIMATION: STABLE</span>
-        <span>v2.4.92-BETA</span>
+        <span>STATUS: {status.toUpperCase()}</span>
+        <span>FINDINGS: {metrics.totalFindings}</span>
+        <span>PROGRESS: {metrics.progress}%</span>
       </div>
     </div>
   );

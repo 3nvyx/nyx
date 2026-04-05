@@ -34,13 +34,13 @@ export default function EvidenceLocker({
           <button
             key={bug.id}
             id={bug.id}
-            onClick={() => onSelectBug(bug.id, bug.evidenceLine)}
+            onClick={() => onSelectFinding(bug.id, bug.evidenceLogId)}
             className="animate-fade-in-up"
             style={{
               animationDelay: `${i * 60}ms`,
-              background: selectedBugId === bug.id ? "var(--bg-elevated)" : "var(--bg-card)",
-              border: selectedBugId === bug.id ? "1px solid var(--green)" : "1px solid var(--border)",
-              boxShadow: selectedBugId === bug.id ? "0 0 12px var(--green-glow)" : "none",
+              background: selectedFindingId === bug.id ? "var(--bg-elevated)" : "var(--bg-card)",
+              border: selectedFindingId === bug.id ? "1px solid var(--green)" : "1px solid var(--border)",
+              boxShadow: selectedFindingId === bug.id ? "0 0 12px var(--green-glow)" : "none",
               borderRadius: 6,
               padding: "10px 12px",
               cursor: "pointer",
@@ -71,14 +71,14 @@ export default function EvidenceLocker({
                   fontSize: "0.75rem",
                   fontFamily: "var(--font-mono)",
                   fontWeight: 500,
-                  color: selectedBugId === bug.id ? "var(--green)" : "var(--text-primary)",
+                  color: selectedFindingId === bug.id ? "var(--green)" : "var(--text-primary)",
                   flex: 1,
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
                 }}
               >
-                {bug.name}
+                {bug.title}
               </span>
             </div>
             <span
@@ -88,8 +88,19 @@ export default function EvidenceLocker({
                 color: "var(--text-muted)",
               }}
             >
-              {bug.timestamp}
+              {new Date(bug.ts).toLocaleTimeString()}
             </span>
+            {bug.description ? (
+              <span
+                style={{
+                  fontSize: "0.65rem",
+                  lineHeight: 1.5,
+                  color: "var(--text-secondary)",
+                }}
+              >
+                {bug.description}
+              </span>
+            ) : null}
           </button>
         ))}
       </div>

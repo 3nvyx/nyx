@@ -20,21 +20,18 @@ export default function ThoughtStream({ messages }: { messages: Thought[] }) {
       <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2" style={{ minHeight: 0 }}>
         {messages.map((msg) => (
           <div
-            key={msg.id}
-            className="animate-fade-in-up"
             style={{
               fontFamily: "var(--font-mono)",
               fontSize: "0.7rem",
               lineHeight: 1.6,
-              color: "var(--text-primary)",
+              color: "var(--text-muted)",
               background: "var(--bg-card)",
               border: "1px solid var(--border)",
               borderRadius: 6,
               padding: "8px 10px",
             }}
           >
-            <span style={{ color: "var(--green)", marginRight: 8, opacity: 0.6 }}>[{msg.timestamp}]</span>
-            {msg.text}
+            No thought events yet. The bridge can post `thought` events to narrate what OpenClaw is doing.
           </div>
         ))}
         <div ref={bottomRef} />

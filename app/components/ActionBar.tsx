@@ -1,10 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import type { OpenClawCommandType, RunStatus } from "@/lib/openclaw/types";
 
-export default function ActionBar() {
-  const [url, setUrl] = useState("https://target-alpha.com");
-  const [isRunning, setIsRunning] = useState(true);
+type ActionBarProps = {
+  runId: string;
+  target: string;
+  status: RunStatus;
+  disabled?: boolean;
+  onCommand: (type: OpenClawCommandType, payload?: Record<string, unknown>) => Promise<void>;
+};
+
+export default function ActionBar({ runId, target, status, disabled = false, onCommand }: ActionBarProps) {
+  const [draftTarget, setDraftTarget] = useState(target);
+
+  useEffect(() => {
+    setDraftTarget(target);
+  }, [target]);
+
+  const isRunning = status === "running" || status === "queued";
+  const primaryCommand: OpenClawCommandType =
+    status === "paused" ? "resume" : isRunning ? "set_scope" : "start_scan";
+  const primaryLabel =
+    status === "paused" ? "▶ Resume Run" : isRunning ? "↻ Update Scope" : "▶ Initiate Pen Test";
 
   return (
     <div
@@ -41,7 +59,7 @@ export default function ActionBar() {
             transition: "all 0.3s ease",
           }}
         />
-        {isRunning ? "Scanning" : "Idle"}
+        {status}
       </div>
 
       {/* URL Input */}
@@ -69,8 +87,8 @@ export default function ActionBar() {
         <input
           type="text"
           id="target-url-input"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
+          value={draftTarget}
+          onChange={(e) => setDraftTarget(e.target.value)}
           style={{
             width: "100%",
             background: "var(--bg)",
@@ -91,6 +109,7 @@ export default function ActionBar() {
             e.target.style.borderColor = "var(--border-bright)";
             e.target.style.boxShadow = "none";
           }}
+          disabled={disabled}
         />
       </div>
 
@@ -98,7 +117,10 @@ export default function ActionBar() {
       <button
         id="initiate-btn"
         className={isRunning ? "" : "animate-pulse-green"}
-        onClick={() => setIsRunning(true)}
+        onClick={() => {
+          void onCommand(primaryCommand, { target: draftTarget });
+        }}
+        disabled={disabled}
         style={{
           background: isRunning
             ? "linear-gradient(135deg, #004d14, #002a0a)"
@@ -118,14 +140,17 @@ export default function ActionBar() {
           transition: "all 0.2s ease",
         }}
       >
-        {isRunning ? "⟳ Scanning..." : "▶ Initiate Pen Test"}
+        {primaryLabel}
       </button>
 
       {/* Kill Switch */}
       <button
         id="kill-switch-btn"
         className="animate-pulse-red"
-        onClick={() => setIsRunning(false)}
+        onClick={() => {
+          void onCommand("stop");
+        }}
+        disabled={disabled}
         style={{
           background: "linear-gradient(135deg, #4d0000, #2a0000)",
           border: "1px solid var(--red)",
@@ -145,6 +170,17 @@ export default function ActionBar() {
       >
         ⛔ Kill Switch
       </button>
+
+      <span
+        style={{
+          fontFamily: "var(--font-mono)",
+          fontSize: "0.55rem",
+          color: "var(--text-muted)",
+          marginLeft: "auto",
+        }}
+      >
+        RUN {runId.slice(0, 8)}
+      </span>
     </div>
   );
 }
