@@ -1,26 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
-import globalEvents from "@/app/lib/events";
+import Pusher from "pusher";
+
+// Initialize Pusher. The non-null assertions (!) assume the user will set these in their .env
+const pusher = new Pusher({
+  appId: process.env.PUSHER_APP_ID || "",
+  key: process.env.NEXT_PUBLIC_PUSHER_KEY || "",
+  secret: process.env.PUSHER_SECRET || "",
+  cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER || "",
+  useTLS: true,
+});
 
 export async function POST(req: NextRequest) {
   try {
     const payload = await req.json();
     const { content, embeds } = payload;
 
-    console.log("Received Discord Webhook:", JSON.stringify(payload, null, 2));
+    console.log("Received Webhook:", JSON.stringify(payload, null, 2));
 
     // 1. Check for official NyX Protocol (JSON with event/data)
     if (payload.event && payload.data) {
-      globalEvents.emit("nyx-event", JSON.stringify(payload));
+      await pusher.trigger("nyx-channel", "nyx-event", payload);
       return NextResponse.json({ success: true, source: "protocol" });
     }
 
     // 2. Check for raw NyX_EVENT string in content (Direct bypass)
     if (content && content.startsWith("NyX_EVENT:")) {
-      globalEvents.emit("nyx-event", content.replace("NyX_EVENT:", ""));
-      return NextResponse.json({ success: true, source: "direct" });
+      try {
+        const parsed = JSON.parse(content.replace("NyX_EVENT:", ""));
+        await pusher.trigger("nyx-channel", "nyx-event", parsed);
+        return NextResponse.json({ success: true, source: "direct" });
+      } catch (e) {
+        console.error("Failed to parse direct NyX_EVENT:", e);
+      }
     }
 
-    // 2. Parse standard Discord message formats
+    // 3. Parse standard Discord message formats
     let eventData: any = null;
 
     // Look for patterns in content
@@ -51,7 +65,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 3. Parse embeds (more structured)
+    // 4. Parse embeds (more structured)
     if (embeds && embeds.length > 0) {
       const embed = embeds[0];
       const title = embed.title?.toLowerCase() || "";
@@ -77,7 +91,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (eventData) {
-      globalEvents.emit("nyx-event", JSON.stringify(eventData));
+      await pusher.trigger("nyx-channel", "nyx-event", eventData);
       return NextResponse.json({ success: true, parsed: true });
     }
 
