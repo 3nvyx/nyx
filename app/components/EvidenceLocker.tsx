@@ -81,15 +81,57 @@ export default function EvidenceLocker({
                 {bug.name}
               </span>
             </div>
-            <span
+            <div
               style={{
-                fontSize: "0.6rem",
-                fontFamily: "var(--font-mono)",
-                color: "var(--text-muted)",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                width: "100%",
+                marginTop: "2px",
               }}
             >
-              {new Date(bug.timestamp).toLocaleTimeString()}
-            </span>
+              {bug.target ? (
+                <span
+                  style={{
+                    fontSize: "0.6rem",
+                    fontFamily: "var(--font-mono)",
+                    color: "var(--amber)",
+                    textOverflow: "ellipsis",
+                    overflow: "hidden",
+                    whiteSpace: "nowrap",
+                    maxWidth: "70%",
+                  }}
+                >
+                  {bug.target}
+                </span>
+              ) : (
+                <span />
+              )}
+              <span
+                style={{
+                  fontSize: "0.6rem",
+                  fontFamily: "var(--font-mono)",
+                  color: "var(--text-muted)",
+                }}
+              >
+                {new Date(bug.timestamp).toLocaleTimeString()}
+              </span>
+            </div>
+            {bug.description && (
+              <span
+                style={{
+                  fontSize: "0.65rem",
+                  color: "var(--text-secondary)",
+                  lineHeight: 1.4,
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                }}
+              >
+                {bug.description}
+              </span>
+            )}
           </button>
         ))}
       </div>

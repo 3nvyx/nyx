@@ -21,6 +21,8 @@ export interface Bug {
   name: string;
   timestamp: string;
   evidenceLine: number;
+  description?: string;
+  target?: string;
 }
 
 export function useNyxEvents() {
@@ -55,9 +57,18 @@ export function useNyxEvents() {
           ]);
           break;
         case "finding":
+          const newBug: Bug = {
+            id: data.id || `bug-${Date.now()}-${Math.random()}`,
+            severity: data.severity || "P2",
+            name: data.title || data.name || "Anomaly Detected",
+            timestamp: data.timestamp || new Date().toISOString(),
+            evidenceLine: data.evidenceLine || 0,
+            description: data.description,
+            target: data.target,
+          };
           setFindings((prev) => [
             ...prev,
-            data
+            newBug
           ]);
           break;
         case "impact":

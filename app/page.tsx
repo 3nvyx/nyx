@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import ActionBar from "./components/ActionBar";
 import EvidenceLocker from "./components/EvidenceLocker";
+import OpenclawMessage from "./components/OpenclawMessage";
 import NyxAvatar from "./components/NyxAvatar";
 import ThoughtStream from "./components/ThoughtStream";
 import LiveConsole, { type LiveConsoleHandle } from "./components/LiveConsole";
@@ -41,6 +42,66 @@ export default function Home() {
     setSelectedFindingId(bugId);
     consoleRef.current?.scrollToLine(evidenceLine);
   };
+
+  useEffect(() => {
+    if (phase !== "dashboard") return;
+
+    const startupSequence = [
+      { text: "Initializing NyX core interceptors...", delay: 200, type: "info" },
+      { text: "Bootstrapping Openclaw cognitive array...", delay: 700, type: "info" },
+      { text: `Target locked: ${targetUrl}`, delay: 1200, type: "header" },
+      { text: "Establishing secure neural bridge via Discord...", delay: 1600, type: "info" },
+      { text: "$ proxychains4 -q nmap -sn", delay: 2200, type: "cmd" },
+      { text: "Bypassing peripheral firewall signatures...", delay: 2600, type: "warning" },
+      { text: "System ready. Autonomy granted. Awaiting telemetry...", delay: 3400, type: "info" },
+    ];
+
+    const timeouts = startupSequence.map((log) => 
+      setTimeout(() => {
+        addEvent({
+          event: "console",
+          data: { text: log.text, type: log.type }
+        });
+      }, log.delay)
+    );
+
+    return () => timeouts.forEach(clearTimeout);
+  }, [phase, targetUrl, addEvent]);
+
+  useEffect(() => {
+    if (phase !== "dashboard") return;
+
+    let count = 0;
+    const maxPings = 3;
+
+    const pingOpenclaw = async () => {
+      count++;
+      let message = "Please continue the scan.";
+      if (count === maxPings) {
+        message = "Finish the scan and set impact to 100.";
+      }
+      message += " Please execute the relevant curl commands in order to respond.";
+
+      try {
+        await fetch("/api/message", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message }),
+        });
+      } catch (err) {
+        console.error("Failed to auto-ping Discord:", err);
+      }
+
+      if (count >= maxPings) {
+        clearInterval(intervalId);
+      }
+    };
+
+    pingOpenclaw(); // Start the first ping at the beginning
+    const intervalId = setInterval(pingOpenclaw, 30000);
+
+    return () => clearInterval(intervalId);
+  }, [phase]);
 
   if (phase === "landing" || phase === "transitioning") {
     return (
@@ -103,7 +164,12 @@ export default function Home() {
           minHeight: 0 
         }}
       >
-        <EvidenceLocker bugs={findings} selectedBugId={selectedFindingId} onSelectBug={handleSelectBug} />
+        <div style={{ flex: 2, minHeight: 0 }}>
+          <EvidenceLocker bugs={findings} selectedBugId={selectedFindingId} onSelectBug={handleSelectBug} />
+        </div>
+        <div style={{ flex: 1, minHeight: 0 }}>
+          <OpenclawMessage />
+        </div>
       </div>
 
       {/* Bottom Bar — Action + Impact */}
