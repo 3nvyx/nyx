@@ -29,8 +29,6 @@ export function useNyxEvents() {
   const [impact, setImpact] = useState(0);
 
   const addEvent = useCallback((eventStr: string) => {
-    if (!eventStr.startsWith("NyX_EVENT:")) return;
-
     try {
       const { event, data } = JSON.parse(eventStr.replace("NyX_EVENT:", ""));
 
@@ -61,6 +59,26 @@ export function useNyxEvents() {
       console.error("Failed to parse NyX event:", err);
     }
   }, []);
+
+  // Subscribe to real-time events via SSE
+  useState(() => {
+    if (typeof window !== "undefined") {
+      const eventSource = new EventSource("/api/events");
+      
+      eventSource.onmessage = (event) => {
+        if (event.data) {
+          addEvent(event.data);
+        }
+      };
+
+      eventSource.onerror = (err) => {
+        console.error("SSE connection error:", err);
+        eventSource.close();
+      };
+
+      return () => eventSource.close();
+    }
+  });
 
   return {
     thoughts,

@@ -2,9 +2,48 @@
 
 import { useState } from "react";
 
-export default function ActionBar() {
-  const [url, setUrl] = useState("https://target-alpha.com");
+export default function ActionBar({ currentUrl, onScanStateChange }: { currentUrl?: string, onScanStateChange?: (running: boolean) => void }) {
+  const [url, setUrl] = useState(currentUrl || "https://target-alpha.com");
   const [isRunning, setIsRunning] = useState(true);
+  const [isPending, setIsPending] = useState(false);
+
+  const handleInitiate = async () => {
+    setIsPending(true);
+    try {
+      const res = await fetch("/api/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+      if (res.ok) {
+        setIsRunning(true);
+        onScanStateChange?.(true);
+      }
+    } catch (err) {
+      console.error("Initiate failed:", err);
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  const handleKill = async () => {
+    setIsPending(true);
+    try {
+      const res = await fetch("/api/kill", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+      if (res.ok) {
+        setIsRunning(false);
+        onScanStateChange?.(false);
+      }
+    } catch (err) {
+      console.error("Kill failed:", err);
+    } finally {
+      setIsPending(false);
+    }
+  };
 
   return (
     <div
@@ -71,6 +110,7 @@ export default function ActionBar() {
           id="target-url-input"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
+          disabled={isPending}
           style={{
             width: "100%",
             background: "var(--bg)",
@@ -82,6 +122,7 @@ export default function ActionBar() {
             color: "var(--text-primary)",
             outline: "none",
             transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+            opacity: isPending ? 0.5 : 1,
           }}
           onFocus={(e) => {
             e.target.style.borderColor = "var(--green)";
@@ -98,13 +139,14 @@ export default function ActionBar() {
       <button
         id="initiate-btn"
         className={isRunning ? "" : "animate-pulse-green"}
-        onClick={() => setIsRunning(true)}
+        onClick={handleInitiate}
+        disabled={isPending || isRunning}
         style={{
           background: isRunning
             ? "linear-gradient(135deg, #004d14, #002a0a)"
             : "linear-gradient(135deg, #00802b, #004d14)",
           border: "1px solid var(--green)",
-          boxShadow: "0 0 16px var(--green-glow)",
+          boxShadow: isRunning ? "none" : "0 0 16px var(--green-glow)",
           borderRadius: 6,
           padding: "10px 24px",
           fontFamily: "var(--font-mono)",
@@ -112,24 +154,26 @@ export default function ActionBar() {
           fontWeight: 700,
           letterSpacing: "0.15em",
           color: "var(--green)",
-          cursor: "pointer",
+          cursor: isPending || isRunning ? "default" : "pointer",
           textTransform: "uppercase",
           whiteSpace: "nowrap",
           transition: "all 0.2s ease",
+          opacity: isRunning ? 0.6 : 1,
         }}
       >
-        {isRunning ? "⟳ Scanning..." : "▶ Initiate Pen Test"}
+        {isPending ? "⏳ Processing..." : isRunning ? "⟳ Scanning..." : "▶ Initiate Pen Test"}
       </button>
 
       {/* Kill Switch */}
       <button
         id="kill-switch-btn"
-        className="animate-pulse-red"
-        onClick={() => setIsRunning(false)}
+        className={isRunning ? "animate-pulse-red" : ""}
+        onClick={handleKill}
+        disabled={isPending || !isRunning}
         style={{
           background: "linear-gradient(135deg, #4d0000, #2a0000)",
           border: "1px solid var(--red)",
-          boxShadow: "0 0 12px var(--red-glow)",
+          boxShadow: isRunning ? "0 0 12px var(--red-glow)" : "none",
           borderRadius: 6,
           padding: "10px 20px",
           fontFamily: "var(--font-mono)",
@@ -137,10 +181,11 @@ export default function ActionBar() {
           fontWeight: 700,
           letterSpacing: "0.15em",
           color: "var(--red)",
-          cursor: "pointer",
+          cursor: isPending || !isRunning ? "default" : "pointer",
           textTransform: "uppercase",
           whiteSpace: "nowrap",
           transition: "all 0.2s ease",
+          opacity: !isRunning ? 0.3 : 1,
         }}
       >
         ⛔ Kill Switch
