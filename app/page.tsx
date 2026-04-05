@@ -123,16 +123,13 @@ export default function Home() {
           if (res.ok) {
             const data = await res.json();
             setFinalReport(data.report);
-            setIsReportModalOpen(true);
           } else {
             console.error("Failed to generate report");
             setFinalReport("## Error\nCould not retrieve remote report from API.");
-            setIsReportModalOpen(true);
           }
         } catch (err) {
           console.error(err);
           setFinalReport("## Error\nException: Could not reach report endpoint.");
-          setIsReportModalOpen(true);
         } finally {
           setIsReportGenerating(false);
         }
@@ -209,7 +206,29 @@ export default function Home() {
         <div style={{ flex: 1, minHeight: 0 }}>
           <OpenclawMessage />
         </div>
-        {finalReport && (
+        
+        {isReportGenerating && (
+          <div
+            className="animate-pulse-green"
+            style={{
+              padding: "10px",
+              background: "var(--bg-card)",
+              border: "1px dashed var(--green)",
+              color: "var(--green)",
+              textAlign: "center",
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.75rem",
+              fontWeight: "bold",
+              borderRadius: "4px",
+              boxShadow: "0 0 6px rgba(0,255,65,0.1)",
+              textTransform: "uppercase"
+            }}
+          >
+            Synthesizing Security Report...
+          </div>
+        )}
+
+        {!isReportGenerating && finalReport && (
           <button
             onClick={() => setIsReportModalOpen(true)}
             style={{

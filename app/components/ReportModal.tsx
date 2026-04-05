@@ -12,7 +12,7 @@ export default function ReportModal({
   isGenerating: boolean;
   isOpen: boolean;
 }) {
-  if (!isOpen && !isGenerating) return null;
+  if (!isOpen) return null;
 
   return (
     <div
