@@ -1,6 +1,8 @@
 "use client";
 
-import type { OpenClawFinding } from "@/lib/openclaw/types";
+import { useState } from "react";
+
+import { Bug } from "../hooks/useNyxEvents";
 
 const SEVERITY_STYLES: Record<string, string> = {
   P1: "severity-p1",
@@ -10,13 +12,13 @@ const SEVERITY_STYLES: Record<string, string> = {
 };
 
 export default function EvidenceLocker({
-  findings,
-  selectedFindingId,
-  onSelectFinding,
+  bugs,
+  selectedBugId,
+  onSelectBug,
 }: {
-  findings: OpenClawFinding[];
-  selectedFindingId: string | null;
-  onSelectFinding: (findingId: string, evidenceLogId?: string) => void;
+  bugs: Bug[];
+  selectedBugId: string | null;
+  onSelectBug: (bugId: string, evidenceLine: number) => void;
 }) {
   return (
     <div className="panel flex flex-col h-full">
@@ -24,26 +26,11 @@ export default function EvidenceLocker({
         <span className="dot" />
         Evidence Locker
         <span style={{ marginLeft: "auto", color: "var(--green)", fontVariantNumeric: "tabular-nums" }}>
-          {findings.length}
+          {bugs.length}
         </span>
       </div>
       <div className="flex-1 overflow-y-auto p-2 flex flex-col gap-1.5">
-        {findings.length === 0 ? (
-          <div
-            style={{
-              background: "var(--bg-card)",
-              border: "1px solid var(--border)",
-              borderRadius: 6,
-              padding: "12px",
-              fontFamily: "var(--font-mono)",
-              fontSize: "0.7rem",
-              color: "var(--text-muted)",
-            }}
-          >
-            No findings reported yet.
-          </div>
-        ) : null}
-        {[...findings].reverse().map((bug, i) => (
+        {bugs.map((bug, i) => (
           <button
             key={bug.id}
             id={bug.id}

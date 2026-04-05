@@ -2,15 +2,7 @@
 
 import type { OpenClawMetrics, RunStatus } from "@/lib/openclaw/types";
 
-export default function ImpactMeter({
-  metrics,
-  status,
-}: {
-  metrics: OpenClawMetrics;
-  status: RunStatus;
-}) {
-  const progress = metrics.riskPercent;
-
+export default function ImpactMeter({ progress }: { progress: number }) {
   // Hardcoded hex colors — no CSS variables
   const getBarColor = (pct: number): string => {
     if (pct < 25) return "#00ff41";       // bright green
@@ -20,8 +12,9 @@ export default function ImpactMeter({
   };
 
   const getLabel = (pct: number) => {
-    if (status === "queued" || status === "running") return "ANALYZING...";
-    if (pct < 30) return "LOW RISK";
+    if (pct === 0) return "READY";
+    if (pct < 10) return "INITIALIZING...";
+    if (pct < 30) return "ANALYZING...";
     if (pct < 60) return "MEDIUM RISK";
     if (pct < 80) return "HIGH RISK";
     return "CRITICAL";

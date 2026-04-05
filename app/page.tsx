@@ -8,8 +8,7 @@ import ThoughtStream from "./components/ThoughtStream";
 import LiveConsole, { type LiveConsoleHandle } from "./components/LiveConsole";
 import ImpactMeter from "./components/ImpactMeter";
 import LandingScreen from "./components/LandingScreen";
-import { useOpenClawRun } from "./hooks/useOpenClawRun";
-import type { OpenClawCommandType } from "@/lib/openclaw/types";
+import { useNyxEvents } from "./hooks/useNyxEvents";
 
 type Phase = "landing" | "transitioning" | "dashboard";
 
@@ -21,93 +20,48 @@ export default function Home() {
   const [startError, setStartError] = useState<string | null>(null);
   const [commandError, setCommandError] = useState<string | null>(null);
   const consoleRef = useRef<LiveConsoleHandle>(null);
-  const { snapshot, isConnecting, error } = useOpenClawRun(runId);
+  
+  const { thoughts, consoleLines, findings, impact, addEvent, clearEvents } = useNyxEvents();
 
-  const handleCommand = async (type: OpenClawCommandType, payload: Record<string, unknown> = {}) => {
-    if (!runId && type !== "start_scan") {
-      return;
-    }
-
-    try {
-      setCommandError(null);
-
-      const response = await fetch("/api/openclaw/commands", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          runId: runId ?? undefined,
-          type,
-          payload,
-          issuedBy: "dashboard",
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Command failed (${response.status}).`);
-      }
-
-      const body = (await response.json()) as {
-        command: {
-          runId: string;
-        };
-      };
-
-      if (!runId) {
-        setRunId(body.command.runId);
-      }
-    } catch (caughtError: unknown) {
-      setCommandError(caughtError instanceof Error ? caughtError.message : "Command failed.");
-    }
+  // Handle scan start
+  const handleStartScan = (url: string) => {
+    clearEvents();
+    setPhase("transitioning");
+    
+    // Simulate events for the demo/simulation mode
+    setTimeout(() => {
+      setPhase("dashboard");
+      runSimulation();
+    }, 1500);
   };
 
-  const handleStartScan = async (url: string) => {
-    setIsStarting(true);
-    setStartError(null);
+  // Simulation logic to demonstrate the real-time hook
+  const runSimulation = () => {
+    const events = [
+      { event: "thought", data: { text: "Initializing reconnaissance...", timestamp: "04:00:01" } },
+      { event: "console", data: { text: "$ nmap -sV target-alpha.com", type: "cmd" } },
+      { event: "impact", data: { progress: 5 } },
+      { event: "console", data: { text: "Scan started. Detecting services...", type: "info" } },
+      { event: "thought", data: { text: "Port 80/443 open. Web server detected.", timestamp: "04:00:15" } },
+      { event: "impact", data: { progress: 12 } },
+      { event: "console", data: { text: "80/tcp open http Apache 2.4.49", type: "data" } },
+      { event: "thought", data: { text: "Apache 2.4.49 is vulnerable to CVE-2021-41773.", timestamp: "04:01:22" } },
+      { event: "console", data: { text: "[!] CRITICAL: Found Directory Traversal vulnerability", type: "critical" } },
+      { event: "finding", data: { id: "bug-1", severity: "P1", name: "Directory Traversal (CVE-2021-41773)", timestamp: "04:01:45", evidenceLine: 9 } },
+      { event: "impact", data: { progress: 68 } },
+      { event: "thought", data: { text: "Vulnerability confirmed. Impact depth high.", timestamp: "04:02:10" } },
+    ];
 
-    try {
-      const response = await fetch("/api/openclaw/commands", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          type: "start_scan",
-          payload: {
-            target: url,
-          },
-          issuedBy: "dashboard",
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Unable to queue run (${response.status}).`);
-      }
-
-      const body = (await response.json()) as {
-        command: {
-          runId: string;
-        };
-      };
-
-      setRunId(body.command.runId);
-      setPhase("transitioning");
+    events.forEach((ev, i) => {
       setTimeout(() => {
-        setPhase("dashboard");
-      }, 1500);
-    } catch (caughtError: unknown) {
-      setStartError(caughtError instanceof Error ? caughtError.message : "Unable to start the run.");
-    } finally {
-      setIsStarting(false);
-    }
+        addEvent(`NyX_EVENT:${JSON.stringify(ev)}`);
+      }, i * 2000); // 2s per event for visibility
+    });
   };
 
-  const handleSelectFinding = (findingId: string, evidenceLogId?: string) => {
-    setSelectedFindingId(findingId);
-    if (evidenceLogId) {
-      consoleRef.current?.scrollToLine(evidenceLogId);
-    }
+  const handleSelectBug = (bugId: string, evidenceLine: number) => {
+    setSelectedBugId(bugId);
+    consoleRef.current?.scrollToLine(evidenceLine);
   };
 
   if (phase === "landing" || phase === "transitioning") {
@@ -150,7 +104,7 @@ export default function Home() {
         <div className="panel" style={{ flexShrink: 0 }}>
           <NyxAvatar working={status === "running" || status === "queued"} />
         </div>
-        <ThoughtStream thoughts={thoughts} />
+        <ThoughtStream messages={thoughts} />
       </div>
 
       {/* Center — Live Console */}
@@ -158,7 +112,7 @@ export default function Home() {
         className="tab-appear stagger-2"
         style={{ gridRow: "1 / 2", gridColumn: "2 / 3", minHeight: 0 }}
       >
-        <LiveConsole ref={consoleRef} lines={logs} />
+        <LiveConsole ref={consoleRef} lines={consoleLines} />
       </div>
 
       {/* Right Column — Evidence Locker */}
@@ -166,11 +120,7 @@ export default function Home() {
         className="tab-appear stagger-3" 
         style={{ gridRow: "1 / 2", gridColumn: "3 / 4", minHeight: 0 }}
       >
-        <EvidenceLocker
-          findings={findings}
-          selectedFindingId={selectedFindingId}
-          onSelectFinding={handleSelectFinding}
-        />
+        <EvidenceLocker bugs={findings} selectedBugId={selectedBugId} onSelectBug={handleSelectBug} />
       </div>
 
       {/* Bottom Bar — Impact Meter */}
@@ -178,28 +128,7 @@ export default function Home() {
         className="tab-appear stagger-4"
         style={{ gridRow: "2 / 3", gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 8 }}
       >
-        {runId ? (
-          <ActionBar
-            runId={runId}
-            target={target}
-            status={status}
-            disabled={isConnecting}
-            onCommand={handleCommand}
-          />
-        ) : null}
-        <div className="panel" style={{ padding: "8px 14px", fontFamily: "var(--font-mono)", fontSize: "0.7rem" }}>
-          <span style={{ color: "var(--text-secondary)" }}>Target:</span>{" "}
-          <span style={{ color: "var(--green)" }}>{target}</span>
-          <span
-            style={{
-              marginLeft: 16,
-              color: error || commandError ? "var(--red)" : "var(--text-secondary)",
-            }}
-          >
-            {commandError ?? error ?? (isConnecting ? "Connecting to live stream..." : "Live stream connected")}
-          </span>
-        </div>
-        <ImpactMeter metrics={metrics} status={status} />
+        <ImpactMeter progress={impact} />
       </div>
     </div>
   );

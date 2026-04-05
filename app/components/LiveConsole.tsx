@@ -1,7 +1,8 @@
 "use client";
 
-import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
-import type { OpenClawLogLine } from "@/lib/openclaw/types";
+import { useEffect, useRef, forwardRef, useImperativeHandle, useState } from "react";
+
+import { ConsoleLine } from "../hooks/useNyxEvents";
 
 const LINE_COLORS: Record<string, string> = {
   cmd: "var(--amber)",
@@ -18,10 +19,7 @@ export interface LiveConsoleHandle {
   scrollToLine: (lineId: string) => void;
 }
 
-export default forwardRef<LiveConsoleHandle, { lines: OpenClawLogLine[] }>(function LiveConsole(
-  { lines },
-  ref
-) {
+const LiveConsole = forwardRef<LiveConsoleHandle, { lines: ConsoleLine[] }>(function LiveConsole({ lines }, ref) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useImperativeHandle(ref, () => ({
@@ -69,11 +67,6 @@ export default forwardRef<LiveConsoleHandle, { lines: OpenClawLogLine[] }>(funct
           zIndex: 2,
         }}
       >
-        {lines.length === 0 ? (
-          <div style={{ color: "var(--text-muted)", padding: "12px 8px" }}>
-            Waiting for telemetry from the OpenClaw bridge...
-          </div>
-        ) : null}
         {lines.map((line) => (
           <div
             key={line.id}
