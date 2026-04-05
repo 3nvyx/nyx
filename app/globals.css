@@ -144,52 +144,46 @@ body {
 .animate-fade-in-up { animation: fade-in-up 0.4s ease-out forwards; }
 .animate-flicker { animation: flicker 4s linear infinite; }
 
-/* ---- Section Panel ---- */
-.panel {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  position: relative;
-  overflow: hidden;
-}
-.panel-header {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-  padding: 10px 14px 8px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.panel-header .dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--green);
-  box-shadow: 0 0 6px var(--green-glow);
-}
-
-/* ---- Severity Badges ---- */
-.severity-p1 { background: var(--red); color: #000; }
-.severity-p2 { background: var(--amber); color: #000; }
-.severity-p3 { background: var(--green); color: #000; }
-.severity-p4 { background: var(--text-muted); color: #fff; }
-
-/* ---- Phase Transitions ---- */
-.reveal-container {
+/* ---- Seamless Dashboard Layout ---- */
+.dashboard {
   display: grid;
-  grid-template-columns: 300px 1fr 300px;
-  grid-template-rows: 1fr auto;
-  gap: 8px;
+  grid-template-columns: 280px 1fr 280px;
   height: 100vh;
   width: 100vw;
   background: var(--bg);
-  padding: 8px;
   overflow: hidden;
+}
+.dashboard-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid var(--border);
+  overflow: visible;
+  position: relative;
+}
+.dashboard-console {
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+  position: relative;
+}
+.dashboard-console::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 255, 65, 0.015) 2px,
+    rgba(0, 255, 65, 0.015) 4px
+  );
+  z-index: 1;
+}
+.dashboard-report {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Transitions & Animations */

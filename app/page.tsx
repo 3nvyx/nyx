@@ -3,9 +3,7 @@
 import { useRef, useState } from "react";
 import EvidenceLocker from "./components/EvidenceLocker";
 import NyxAvatar from "./components/NyxAvatar";
-import ThoughtStream from "./components/ThoughtStream";
 import LiveConsole, { type LiveConsoleHandle } from "./components/LiveConsole";
-import ImpactMeter from "./components/ImpactMeter";
 import LandingScreen from "./components/LandingScreen";
 
 type Phase = "landing" | "transitioning" | "dashboard";
@@ -17,7 +15,6 @@ export default function Home() {
 
   const handleStartScan = (url: string) => {
     setPhase("transitioning");
-    // Wait for the fly-off animation (1.5s) before showing dashboard
     setTimeout(() => {
       setPhase("dashboard");
     }, 1500);
@@ -33,47 +30,43 @@ export default function Home() {
   }
 
   return (
-    <div className="reveal-container">
-      {/* Left Column — Avatar + Thought Stream */}
-      <div
-        className="tab-appear stagger-1"
-        style={{
-          gridRow: "1 / 2",
-          gridColumn: "1 / 2",
-          display: "flex",
-          flexDirection: "column",
-          gap: 8,
-          minHeight: 0,
-        }}
-      >
-        <div className="panel" style={{ flexShrink: 0 }}>
+    <div style={{
+      display: "grid",
+      gridTemplateColumns: "300px 1fr",
+      height: "100vh",
+      width: "100vw",
+      background: "var(--bg)",
+      overflow: "hidden",
+    }}>
+      {/* Left — Vulnerability Report + Avatar stacked */}
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        overflow: "visible", // Allowed overflow so bubble can hang outside
+        borderRight: "1px solid var(--border)",
+      }}>
+        {/* Vulnerability Report (scrollable) */}
+        <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column", minHeight: 0 }}>
+          <EvidenceLocker selectedBugId={selectedBugId} onSelectBug={handleSelectBug} />
+        </div>
+
+        {/* NyX Avatar (fixed height at bottom) */}
+        <div style={{
+          height: 260,
+          flexShrink: 0,
+          borderTop: "1px solid var(--border)",
+          position: "relative",
+        }}>
           <NyxAvatar working={true} />
         </div>
-        <ThoughtStream />
       </div>
 
-      {/* Center — Live Console */}
-      <div 
-        className="tab-appear stagger-2"
-        style={{ gridRow: "1 / 2", gridColumn: "2 / 3", minHeight: 0 }}
-      >
+      {/* Right — Live Console (takes all remaining space) */}
+      <div className="scanline" style={{
+        overflowY: "auto",
+        position: "relative",
+      }}>
         <LiveConsole ref={consoleRef} />
-      </div>
-
-      {/* Right Column — Evidence Locker */}
-      <div 
-        className="tab-appear stagger-3" 
-        style={{ gridRow: "1 / 2", gridColumn: "3 / 4", minHeight: 0 }}
-      >
-        <EvidenceLocker selectedBugId={selectedBugId} onSelectBug={handleSelectBug} />
-      </div>
-
-      {/* Bottom Bar — Impact Meter */}
-      <div 
-        className="tab-appear stagger-4"
-        style={{ gridRow: "2 / 3", gridColumn: "1 / -1" }}
-      >
-        <ImpactMeter />
       </div>
     </div>
   );

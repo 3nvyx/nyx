@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import NyxRobot3D from "./NyxRobot3D";
+import DraggableSpeechBubble from "./DraggableSpeechBubble";
 
 interface LandingScreenProps {
   onStartScan: (url: string) => void;
@@ -81,9 +82,52 @@ export default function LandingScreen({ onStartScan, isExiting = false }: Landin
           position: "absolute",
           inset: 0,
           zIndex: 0,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
         }}
       >
-        <NyxRobot3D speechText={typedText} isExiting={isExiting} />
+        {/* Speech bubble — rendered as regular HTML absolutely positioned to the right */}
+        {typedText && !isExiting && (
+          <DraggableSpeechBubble 
+            initialTop="calc(50% - 100px)"
+            initialLeft="calc(50% + 120px)"
+            width="300px"
+          >
+            <div style={{
+              background: "rgba(10, 10, 10, 0.92)",
+              border: "1px solid var(--green)",
+              borderRadius: "8px",
+              padding: "10px 14px",
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.8rem",
+              fontWeight: 600,
+              lineHeight: 1.5,
+              color: "var(--green)",
+              boxShadow: "0 0 16px var(--green-glow)",
+              position: "relative",
+            }}>
+              {typedText}
+              <span className="animate-blink" style={{ fontWeight: 800 }}>|</span>
+              {/* Triangle pointer — pointing left toward the robot */}
+              <div style={{
+                position: "absolute",
+                top: "20px",
+                left: "-10px",
+                width: 0,
+                height: 0,
+                borderTop: "8px solid transparent",
+                borderBottom: "8px solid transparent",
+                borderRight: "10px solid var(--green)",
+              }} />
+            </div>
+          </DraggableSpeechBubble>
+        )}
+        
+        {/* The 3D robot fills its container in the center */}
+        <div style={{ width: "100%", height: "100%" }}>
+          <NyxRobot3D isExiting={isExiting} />
+        </div>
       </div>
 
       {/* Bottom UI Overlay */}
@@ -121,7 +165,7 @@ export default function LandingScreen({ onStartScan, isExiting = false }: Landin
               opacity: 0.6,
             }}
           >
-            TARGET://
+            Target URL:
           </span>
           <input
             type="text"
@@ -166,8 +210,8 @@ export default function LandingScreen({ onStartScan, isExiting = false }: Landin
             transition: "color 0.2s ease",
           }}
         >
-          <span style={{ fontSize: "0.8rem" }}>{showCredentials ? "🔓" : "🔒"}</span>
-          AUTHENTICATION (OPTIONAL)
+          <span style={{ fontSize: "0.8rem" }}></span>
+          Login (Optional)
           <span style={{ marginLeft: "auto", fontSize: "0.6rem", opacity: 0.5 }}>
             {showCredentials ? "▲" : "▼"}
           </span>

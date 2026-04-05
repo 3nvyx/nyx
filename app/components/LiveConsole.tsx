@@ -104,54 +104,42 @@ const LiveConsole = forwardRef<LiveConsoleHandle>(function LiveConsole(_, ref) {
   }, [visibleLines]);
 
   return (
-    <div className="panel scanline flex flex-col h-full">
-      <div className="panel-header">
-        <span className="dot" />
-        Live Console
-        <div style={{ marginLeft: "auto", display: "flex", gap: 6 }}>
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#ff5f56" }} />
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#ffbd2e" }} />
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#27c93f" }} />
-        </div>
-      </div>
-      <div
-        ref={containerRef}
-        className="flex-1 overflow-y-auto"
-        style={{
-          padding: "12px 14px",
-          fontFamily: "var(--font-mono)",
-          fontSize: "0.68rem",
-          lineHeight: 1.7,
-          minHeight: 0,
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
-        {SCAN_OUTPUT.slice(0, visibleLines).map((line) => (
-          <div
-            key={line.id}
-            id={`console-line-${line.id}`}
-            style={{
-              color: LINE_COLORS[line.type] || "var(--text-primary)",
-              fontWeight: line.type === "critical" ? 700 : 400,
-              minHeight: line.type === "blank" ? 12 : "auto",
-              paddingLeft: 8,
-              borderLeft: "3px solid transparent",
-              transition: "all 0.3s ease",
-            }}
-          >
-            <span style={{ color: "var(--text-muted)", marginRight: 12, userSelect: "none", opacity: 0.4 }}>
-              {String(line.id).padStart(2, "0")}
-            </span>
-            {line.text}
-          </div>
-        ))}
-        {visibleLines < SCAN_OUTPUT.length && (
-          <span className="animate-blink" style={{ color: "var(--green)" }}>
-            ▊
+    <div
+      ref={containerRef}
+      className="flex-1 overflow-y-auto"
+      style={{
+        padding: "12px 14px",
+        fontFamily: "var(--font-mono)",
+        fontSize: "0.68rem",
+        lineHeight: 1.7,
+        height: "100%",
+        position: "relative",
+      }}
+    >
+      {SCAN_OUTPUT.slice(0, visibleLines).map((line) => (
+        <div
+          key={line.id}
+          id={`console-line-${line.id}`}
+          style={{
+            color: LINE_COLORS[line.type] || "var(--text-primary)",
+            fontWeight: line.type === "critical" ? 700 : 400,
+            minHeight: line.type === "blank" ? 12 : "auto",
+            paddingLeft: 8,
+            borderLeft: "3px solid transparent",
+            transition: "all 0.3s ease",
+          }}
+        >
+          <span style={{ color: "var(--text-muted)", marginRight: 12, userSelect: "none", opacity: 0.4 }}>
+            {String(line.id).padStart(2, "0")}
           </span>
-        )}
-      </div>
+          {line.text}
+        </div>
+      ))}
+      {visibleLines < SCAN_OUTPUT.length && (
+        <span className="animate-blink" style={{ color: "var(--green)" }}>
+          ▊
+        </span>
+      )}
     </div>
   );
 });

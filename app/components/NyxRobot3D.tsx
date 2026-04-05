@@ -5,7 +5,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { RoundedBox, Float, PerspectiveCamera, Environment, Html } from "@react-three/drei";
 import * as THREE from "three";
 
-function RobotBody({ isWorking, speechText }: { isWorking?: boolean; speechText?: string }) {
+function RobotBody({ isWorking }: { isWorking?: boolean }) {
   const bodyRef = useRef<THREE.Group>(null);
   const headRef = useRef<THREE.Group>(null);
   const antennaRef = useRef<THREE.Mesh>(null);
@@ -128,53 +128,7 @@ function RobotBody({ isWorking, speechText }: { isWorking?: boolean; speechText?
         </group>
       </group>
 
-      {/* Speech Bubble - Moved to the right side of the head */}
-      {speechText && (
-        <Html
-          position={[0.8, 1.2, 0.5]}
-          zIndexRange={[100, 0]}
-        >
-          <div
-            style={{
-              width: 'max-content',
-              maxWidth: '280px',
-              background: 'rgba(10, 10, 10, 0.9)',
-              backdropFilter: 'blur(12px)',
-              border: '2px solid var(--green)',
-              borderRadius: '16px',
-              padding: '16px 20px',
-              fontFamily: 'var(--font-mono)',
-              fontSize: '15px',
-              fontWeight: 600,
-              color: 'var(--green)',
-              boxShadow: '0 0 30px var(--green-glow)',
-              position: 'relative',
-              display: 'flex',
-              flexDirection: 'column',
-              userSelect: 'none',
-              marginLeft: '20px',
-            }}
-          >
-            <div style={{ textAlign: 'left', lineHeight: 1.5 }}>
-              {speechText}
-              <span className="animate-blink" style={{ fontWeight: 800 }}>|</span>
-            </div>
-            {/* Triangle pointer - pointing left toward the head */}
-            <div
-              style={{
-                position: 'absolute',
-                left: '-12px',
-                top: '20px',
-                width: '0',
-                height: '0',
-                borderTop: '10px solid transparent',
-                borderBottom: '10px solid transparent',
-                borderRight: '12px solid var(--green)',
-              }}
-            />
-          </div>
-        </Html>
-      )}
+
 
       {/* Shoulder Joints */}
       {[-0.7, 0.7].map((x, i) => (
@@ -203,12 +157,10 @@ function RobotBody({ isWorking, speechText }: { isWorking?: boolean; speechText?
 export default function NyxRobot3D({ 
   working = false, 
   isExiting = false,
-  speechText = "",
   className = "" 
 }: { 
   working?: boolean;
   isExiting?: boolean;
-  speechText?: string;
   className?: string;
 }) {
   return (
@@ -220,7 +172,7 @@ export default function NyxRobot3D({
         <spotLight position={[-10, 10, 10]} angle={0.15} penumbra={1} intensity={2} />
         
         <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
-          <RobotBody isWorking={working} speechText={isExiting ? "" : speechText} />
+          <RobotBody isWorking={working} />
         </Float>
 
         <Environment preset="city" />
