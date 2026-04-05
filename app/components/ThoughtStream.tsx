@@ -18,7 +18,7 @@ export default function ThoughtStream({ messages }: { messages: Thought[] }) {
         Thought Stream
       </div>
       <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2" style={{ minHeight: 0 }}>
-        {messages.map((msg) => (
+        {messages.length === 0 && (
           <div
             style={{
               fontFamily: "var(--font-mono)",
@@ -32,6 +32,23 @@ export default function ThoughtStream({ messages }: { messages: Thought[] }) {
             }}
           >
             No thought events yet. The bridge can post `thought` events to narrate what OpenClaw is doing.
+          </div>
+        )}
+        {messages.map((msg) => (
+          <div
+            key={msg.id}
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.7rem",
+              lineHeight: 1.6,
+              color: "var(--text-primary)",
+              background: "var(--bg-elevated)",
+              border: "1px solid var(--border)",
+              borderRadius: 6,
+              padding: "8px 10px",
+            }}
+          >
+            {msg.text}
           </div>
         ))}
         <div ref={bottomRef} />
