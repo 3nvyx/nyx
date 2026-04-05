@@ -102,7 +102,7 @@ export default function Home() {
     };
 
     pingOpenclaw(); // Start the first ping at the beginning
-    const intervalId = setInterval(pingOpenclaw, 15000);
+    const intervalId = setInterval(pingOpenclaw, 25000);
 
     return () => clearInterval(intervalId);
   }, [phase]);
@@ -206,7 +206,7 @@ export default function Home() {
         <div style={{ flex: 1, minHeight: 0 }}>
           <OpenclawMessage />
         </div>
-        
+
         {isReportGenerating && (
           <div
             className="animate-pulse-green"
