@@ -2,27 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-export default function ImpactMeter() {
-  const [progress, setProgress] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(true);
-  const targetPercent = 72;
-
-  useEffect(() => {
-    let current = 0;
-    const interval = setInterval(() => {
-      const step = Math.floor(Math.random() * 9) + 3;
-      current = Math.min(current + step, targetPercent);
-      setProgress(current);
-
-      if (current >= targetPercent) {
-        setIsAnimating(false);
-        clearInterval(interval);
-      }
-    }, 600 + Math.random() * 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-
+export default function ImpactMeter({ progress }: { progress: number }) {
   // Hardcoded hex colors — no CSS variables
   const getBarColor = (pct: number): string => {
     if (pct < 25) return "#00ff41";       // bright green
@@ -32,8 +12,9 @@ export default function ImpactMeter() {
   };
 
   const getLabel = (pct: number) => {
-    if (isAnimating) return "ANALYZING...";
-    if (pct < 30) return "LOW RISK";
+    if (pct === 0) return "READY";
+    if (pct < 10) return "INITIALIZING...";
+    if (pct < 30) return "ANALYZING...";
     if (pct < 60) return "MEDIUM RISK";
     if (pct < 80) return "HIGH RISK";
     return "CRITICAL";

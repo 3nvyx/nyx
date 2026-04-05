@@ -2,26 +2,7 @@
 
 import { useState } from "react";
 
-interface Bug {
-  id: string;
-  severity: "P1" | "P2" | "P3" | "P4";
-  name: string;
-  timestamp: string;
-  evidenceLine: number;
-}
-
-const MOCK_BUGS: Bug[] = [
-  { id: "bug-1", severity: "P1", name: "Sensitive File Exposure", timestamp: "04:32:18", evidenceLine: 42 },
-  { id: "bug-2", severity: "P2", name: "Reflected XSS", timestamp: "04:28:05", evidenceLine: 28 },
-  { id: "bug-3", severity: "P1", name: "SQL Injection Vector", timestamp: "04:25:41", evidenceLine: 35 },
-  { id: "bug-4", severity: "P3", name: "Server Version Leak", timestamp: "04:19:22", evidenceLine: 18 },
-  { id: "bug-5", severity: "P2", name: "Open Redirect", timestamp: "04:15:09", evidenceLine: 22 },
-  { id: "bug-6", severity: "P4", name: "Missing HSTS Header", timestamp: "04:10:33", evidenceLine: 8 },
-  { id: "bug-7", severity: "P3", name: "Directory Listing", timestamp: "04:05:17", evidenceLine: 14 },
-  { id: "bug-8", severity: "P1", name: "Auth Bypass via IDOR", timestamp: "04:01:44", evidenceLine: 48 },
-  { id: "bug-9", severity: "P2", name: "CORS Misconfiguration", timestamp: "03:56:28", evidenceLine: 32 },
-  { id: "bug-10", severity: "P4", name: "Cookie Without Secure", timestamp: "03:50:11", evidenceLine: 5 },
-];
+import { Bug } from "../hooks/useNyxEvents";
 
 const SEVERITY_STYLES: Record<string, string> = {
   P1: "severity-p1",
@@ -31,9 +12,11 @@ const SEVERITY_STYLES: Record<string, string> = {
 };
 
 export default function EvidenceLocker({
+  bugs,
   selectedBugId,
   onSelectBug,
 }: {
+  bugs: Bug[];
   selectedBugId: string | null;
   onSelectBug: (bugId: string, evidenceLine: number) => void;
 }) {
@@ -43,11 +26,11 @@ export default function EvidenceLocker({
         <span className="dot" />
         Evidence Locker
         <span style={{ marginLeft: "auto", color: "var(--green)", fontVariantNumeric: "tabular-nums" }}>
-          {MOCK_BUGS.length}
+          {bugs.length}
         </span>
       </div>
       <div className="flex-1 overflow-y-auto p-2 flex flex-col gap-1.5">
-        {MOCK_BUGS.map((bug, i) => (
+        {bugs.map((bug, i) => (
           <button
             key={bug.id}
             id={bug.id}
