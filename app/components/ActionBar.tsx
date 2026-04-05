@@ -100,6 +100,7 @@ export default function ActionBar({ runId, target, status, disabled = false, onC
             color: "var(--text-primary)",
             outline: "none",
             transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+            opacity: isPending ? 0.5 : 1,
           }}
           onFocus={(e) => {
             e.target.style.borderColor = "var(--green)";
@@ -126,7 +127,7 @@ export default function ActionBar({ runId, target, status, disabled = false, onC
             ? "linear-gradient(135deg, #004d14, #002a0a)"
             : "linear-gradient(135deg, #00802b, #004d14)",
           border: "1px solid var(--green)",
-          boxShadow: "0 0 16px var(--green-glow)",
+          boxShadow: isRunning ? "none" : "0 0 16px var(--green-glow)",
           borderRadius: 6,
           padding: "10px 24px",
           fontFamily: "var(--font-mono)",
@@ -134,10 +135,11 @@ export default function ActionBar({ runId, target, status, disabled = false, onC
           fontWeight: 700,
           letterSpacing: "0.15em",
           color: "var(--green)",
-          cursor: "pointer",
+          cursor: isPending || isRunning ? "default" : "pointer",
           textTransform: "uppercase",
           whiteSpace: "nowrap",
           transition: "all 0.2s ease",
+          opacity: isRunning ? 0.6 : 1,
         }}
       >
         {primaryLabel}
@@ -154,7 +156,7 @@ export default function ActionBar({ runId, target, status, disabled = false, onC
         style={{
           background: "linear-gradient(135deg, #4d0000, #2a0000)",
           border: "1px solid var(--red)",
-          boxShadow: "0 0 12px var(--red-glow)",
+          boxShadow: isRunning ? "0 0 12px var(--red-glow)" : "none",
           borderRadius: 6,
           padding: "10px 20px",
           fontFamily: "var(--font-mono)",
@@ -162,10 +164,11 @@ export default function ActionBar({ runId, target, status, disabled = false, onC
           fontWeight: 700,
           letterSpacing: "0.15em",
           color: "var(--red)",
-          cursor: "pointer",
+          cursor: isPending || !isRunning ? "default" : "pointer",
           textTransform: "uppercase",
           whiteSpace: "nowrap",
           transition: "all 0.2s ease",
+          opacity: !isRunning ? 0.3 : 1,
         }}
       >
         ⛔ Kill Switch

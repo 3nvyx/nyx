@@ -8,6 +8,8 @@ import ThoughtStream from "./components/ThoughtStream";
 import LiveConsole, { type LiveConsoleHandle } from "./components/LiveConsole";
 import ImpactMeter from "./components/ImpactMeter";
 import LandingScreen from "./components/LandingScreen";
+import ActionBar from "./components/ActionBar";
+import AttackTree from "./components/AttackTree";
 import { useNyxEvents } from "./hooks/useNyxEvents";
 
 type Phase = "landing" | "transitioning" | "dashboard";
@@ -23,40 +25,16 @@ export default function Home() {
   
   const { thoughts, consoleLines, findings, impact, addEvent, clearEvents } = useNyxEvents();
 
-  // Handle scan start
+  // Handle scan start transition
   const handleStartScan = (url: string) => {
+    setTargetUrl(url);
     clearEvents();
     setPhase("transitioning");
     
-    // Simulate events for the demo/simulation mode
+    // Small transition before showing the dashboard
     setTimeout(() => {
       setPhase("dashboard");
-      runSimulation();
     }, 1500);
-  };
-
-  // Simulation logic to demonstrate the real-time hook
-  const runSimulation = () => {
-    const events = [
-      { event: "thought", data: { text: "Initializing reconnaissance...", timestamp: "04:00:01" } },
-      { event: "console", data: { text: "$ nmap -sV target-alpha.com", type: "cmd" } },
-      { event: "impact", data: { progress: 5 } },
-      { event: "console", data: { text: "Scan started. Detecting services...", type: "info" } },
-      { event: "thought", data: { text: "Port 80/443 open. Web server detected.", timestamp: "04:00:15" } },
-      { event: "impact", data: { progress: 12 } },
-      { event: "console", data: { text: "80/tcp open http Apache 2.4.49", type: "data" } },
-      { event: "thought", data: { text: "Apache 2.4.49 is vulnerable to CVE-2021-41773.", timestamp: "04:01:22" } },
-      { event: "console", data: { text: "[!] CRITICAL: Found Directory Traversal vulnerability", type: "critical" } },
-      { event: "finding", data: { id: "bug-1", severity: "P1", name: "Directory Traversal (CVE-2021-41773)", timestamp: "04:01:45", evidenceLine: 9 } },
-      { event: "impact", data: { progress: 68 } },
-      { event: "thought", data: { text: "Vulnerability confirmed. Impact depth high.", timestamp: "04:02:10" } },
-    ];
-
-    events.forEach((ev, i) => {
-      setTimeout(() => {
-        addEvent(`NyX_EVENT:${JSON.stringify(ev)}`);
-      }, i * 2000); // 2s per event for visibility
-    });
   };
 
   const handleSelectBug = (bugId: string, evidenceLine: number) => {
@@ -113,15 +91,22 @@ export default function Home() {
         <LiveConsole ref={consoleRef} lines={consoleLines} />
       </div>
 
-      {/* Right Column — Evidence Locker */}
+      {/* Right Column — Evidence Locker & Attack Tree */}
       <div 
         className="tab-appear stagger-3" 
-        style={{ gridRow: "1 / 2", gridColumn: "3 / 4", minHeight: 0 }}
+        style={{ 
+          gridRow: "1 / 2", 
+          gridColumn: "3 / 4", 
+          display: "flex", 
+          flexDirection: "column", 
+          gap: 8,
+          minHeight: 0 
+        }}
       >
         <EvidenceLocker bugs={findings} selectedBugId={selectedFindingId} onSelectBug={handleSelectBug} />
       </div>
 
-      {/* Bottom Bar — Impact Meter */}
+      {/* Bottom Bar — Action + Impact */}
       <div 
         className="tab-appear stagger-4"
         style={{ gridRow: "2 / 3", gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 8 }}
