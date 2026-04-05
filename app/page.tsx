@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from "react";
 import ActionBar from "./components/ActionBar";
 import EvidenceLocker from "./components/EvidenceLocker";
 import OpenclawMessage from "./components/OpenclawMessage";
+import ReportModal from "./components/ReportModal";
 import NyxAvatar from "./components/NyxAvatar";
 import ThoughtStream from "./components/ThoughtStream";
 import LiveConsole, { type LiveConsoleHandle } from "./components/LiveConsole";
@@ -22,8 +23,10 @@ export default function Home() {
   const [startError, setStartError] = useState<string | null>(null);
   const [commandError, setCommandError] = useState<string | null>(null);
   const [targetUrl, setTargetUrl] = useState<string>("Awaiting bridge target");
+  const [isReportGenerating, setIsReportGenerating] = useState(false);
+  const [finalReport, setFinalReport] = useState<string | null>(null);
   const consoleRef = useRef<LiveConsoleHandle>(null);
-  
+
   const { thoughts, consoleLines, findings, impact, addEvent, clearEvents } = useNyxEvents();
 
   // Handle scan start transition
@@ -31,7 +34,7 @@ export default function Home() {
     setTargetUrl(url);
     clearEvents();
     setPhase("transitioning");
-    
+
     // Small transition before showing the dashboard
     setTimeout(() => {
       setPhase("dashboard");
@@ -56,7 +59,7 @@ export default function Home() {
       { text: "System ready. Autonomy granted. Awaiting telemetry...", delay: 3400, type: "info" },
     ];
 
-    const timeouts = startupSequence.map((log) => 
+    const timeouts = startupSequence.map((log) =>
       setTimeout(() => {
         addEvent({
           event: "console",
@@ -98,10 +101,42 @@ export default function Home() {
     };
 
     pingOpenclaw(); // Start the first ping at the beginning
-    const intervalId = setInterval(pingOpenclaw, 30000);
+    const intervalId = setInterval(pingOpenclaw, 15000);
 
     return () => clearInterval(intervalId);
   }, [phase]);
+
+  // Track completion to generate Grok Report
+  useEffect(() => {
+    if (phase !== "dashboard") return;
+    if (impact >= 100 && !isReportGenerating && !finalReport) {
+      const generateReport = async () => {
+        setIsReportGenerating(true);
+        try {
+          const res = await fetch("/api/report", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ findings, thoughts }),
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            setFinalReport(data.report);
+          } else {
+            console.error("Failed to generate report");
+            setFinalReport("## Error\nCould not retrieve remote report from API.");
+          }
+        } catch (err) {
+          console.error(err);
+          setFinalReport("## Error\nException: Could not reach report endpoint.");
+        } finally {
+          setIsReportGenerating(false);
+        }
+      };
+
+      generateReport();
+    }
+  }, [impact, phase, isReportGenerating, finalReport, findings, thoughts]);
 
   if (phase === "landing" || phase === "transitioning") {
     return (
@@ -119,7 +154,7 @@ export default function Home() {
   const logs: any[] = [];
   const metrics = {
     progress: impact,
-    riskPercent: impact, 
+    riskPercent: impact,
     totalFindings: findings.length,
     countsBySeverity: { P1: 0, P2: 0, P3: 0, P4: 0 },
   };
@@ -145,7 +180,7 @@ export default function Home() {
       </div>
 
       {/* Center — Live Console */}
-      <div 
+      <div
         className="tab-appear stagger-2"
         style={{ gridRow: "1 / 2", gridColumn: "2 / 3", minHeight: 0 }}
       >
@@ -153,15 +188,15 @@ export default function Home() {
       </div>
 
       {/* Right Column — Evidence Locker & Attack Tree */}
-      <div 
-        className="tab-appear stagger-3" 
-        style={{ 
-          gridRow: "1 / 2", 
-          gridColumn: "3 / 4", 
-          display: "flex", 
-          flexDirection: "column", 
+      <div
+        className="tab-appear stagger-3"
+        style={{
+          gridRow: "1 / 2",
+          gridColumn: "3 / 4",
+          display: "flex",
+          flexDirection: "column",
           gap: 8,
-          minHeight: 0 
+          minHeight: 0
         }}
       >
         <div style={{ flex: 2, minHeight: 0 }}>
@@ -173,12 +208,18 @@ export default function Home() {
       </div>
 
       {/* Bottom Bar — Action + Impact */}
-      <div 
+      <div
         className="tab-appear stagger-4"
         style={{ gridRow: "2 / 3", gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 8 }}
       >
         <ImpactMeter progress={metrics.progress} status={status} totalFindings={metrics.totalFindings} />
       </div>
+
+      <ReportModal 
+        report={finalReport} 
+        isGenerating={isReportGenerating} 
+        onClose={() => setFinalReport(null)} 
+      />
     </div>
   );
 }
