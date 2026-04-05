@@ -1,0 +1,6 @@
+﻿app/components/ActionBar.tsx(103,22): error TS2304: Cannot find name 'isPending'.
+app/components/ActionBar.tsx(138,19): error TS2304: Cannot find name 'isPending'.
+app/components/ActionBar.tsx(167,19): error TS2304: Cannot find name 'isPending'.
+app/page.tsx(4,8): error TS2300: Duplicate identifier 'ActionBar'.
+app/page.tsx(11,8): error TS2300: Duplicate identifier 'ActionBar'.
+app/page.tsx(30,5): error TS2304: Cannot find name 'setTargetUrl'.

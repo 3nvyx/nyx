@@ -8,7 +8,6 @@ import ThoughtStream from "./components/ThoughtStream";
 import LiveConsole, { type LiveConsoleHandle } from "./components/LiveConsole";
 import ImpactMeter from "./components/ImpactMeter";
 import LandingScreen from "./components/LandingScreen";
-import ActionBar from "./components/ActionBar";
 import AttackTree from "./components/AttackTree";
 import { useNyxEvents } from "./hooks/useNyxEvents";
 
@@ -21,6 +20,7 @@ export default function Home() {
   const [isStarting, setIsStarting] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
   const [commandError, setCommandError] = useState<string | null>(null);
+  const [targetUrl, setTargetUrl] = useState<string>("Awaiting bridge target");
   const consoleRef = useRef<LiveConsoleHandle>(null);
   
   const { thoughts, consoleLines, findings, impact, addEvent, clearEvents } = useNyxEvents();
@@ -53,7 +53,7 @@ export default function Home() {
     );
   }
 
-  const target = "Awaiting bridge target";
+  const target = targetUrl;
   const status = phase === "dashboard" ? "running" : "idle";
   const logs: any[] = [];
   const metrics = {

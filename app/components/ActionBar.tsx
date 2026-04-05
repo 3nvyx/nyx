@@ -100,7 +100,7 @@ export default function ActionBar({ runId, target, status, disabled = false, onC
             color: "var(--text-primary)",
             outline: "none",
             transition: "border-color 0.2s ease, box-shadow 0.2s ease",
-            opacity: isPending ? 0.5 : 1,
+            opacity: disabled ? 0.5 : 1,
           }}
           onFocus={(e) => {
             e.target.style.borderColor = "var(--green)";
@@ -135,7 +135,7 @@ export default function ActionBar({ runId, target, status, disabled = false, onC
           fontWeight: 700,
           letterSpacing: "0.15em",
           color: "var(--green)",
-          cursor: isPending || isRunning ? "default" : "pointer",
+          cursor: disabled || isRunning ? "default" : "pointer",
           textTransform: "uppercase",
           whiteSpace: "nowrap",
           transition: "all 0.2s ease",
@@ -164,7 +164,7 @@ export default function ActionBar({ runId, target, status, disabled = false, onC
           fontWeight: 700,
           letterSpacing: "0.15em",
           color: "var(--red)",
-          cursor: isPending || !isRunning ? "default" : "pointer",
+          cursor: disabled || !isRunning ? "default" : "pointer",
           textTransform: "uppercase",
           whiteSpace: "nowrap",
           transition: "all 0.2s ease",
